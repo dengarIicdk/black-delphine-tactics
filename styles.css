@@ -1,0 +1,154 @@
+body {
+    margin: 0;
+    background-color: #0b0c10; /* Глубокий черный фон за картой */
+    color: #e0e0e0; /* Мягкий белый текст */
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Боковая панель: полупрозрачный черный с серой рамкой */
+#sidebar {
+    width: 250px;
+    background-color: rgba(17, 18, 23, 0.85); 
+    backdrop-filter: blur(10px); /* Красивое размытие за панелью */
+    padding: 15px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 20;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+h3 { 
+    margin: 3px 0; 
+    font-size: 16px; 
+    text-align: center; 
+    color: #ffffff; 
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+h4 { 
+    margin: 12px 0 4px 0; 
+    color: #888888; /* Серые аккуратные заголовки */
+    font-size: 11px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+}
+
+/* Кнопки управления: тёмно-серые, полупрозрачные */
+button {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #b3b3b3;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+button:hover { 
+    background-color: rgba(255, 255, 255, 0.09); 
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Активные кнопки: серый акцент вместо синего */
+button.active { 
+    background-color: rgba(255, 255, 255, 0.15); 
+    border-color: rgba(255, 255, 255, 0.4); 
+    color: #ffffff;
+}
+
+/* Кнопки карт */
+.btn-map { background-color: rgba(255, 255, 255, 0.02); }
+.btn-map.active { 
+    background-color: rgba(255, 255, 255, 0.12); 
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+/* Выбор цвета кисти */
+#color-picker { display: flex; gap: 8px; margin-top: 2px; }
+.color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+.color-dot.selected { border-color: #ffffff; transform: scale(1.15); }
+
+/* Спавн объектов */
+.object-spawn-panel { display: flex; flex-direction: column; gap: 5px; }
+.spawn-row { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    background: rgba(255, 255, 255, 0.02); 
+    padding: 5px 8px; 
+    border-radius: 6px; 
+    border: 1px solid rgba(255, 255, 255, 0.05); 
+    font-size: 12px;
+    color: #aaaaaa;
+}
+.btn-spawn { 
+    padding: 3px 8px; 
+    font-size: 11px; 
+    background: rgba(255, 255, 255, 0.08); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Сцены */
+#scenes-list { display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
+.scene-item { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    background: rgba(255, 255, 255, 0.02); 
+    padding: 6px 10px; 
+    border-radius: 6px; 
+    border: 1px solid rgba(255, 255, 255, 0.06); 
+    cursor: pointer; 
+}
+.scene-item.active { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-color: rgba(255, 255, 255, 0.25); 
+}
+.scene-name { font-size: 13px; font-weight: bold; color: #dddddd; flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene-item.active .scene-name { color: #ffffff; }
+.btn-del-scene { background: transparent; border: none; color: #888888; cursor: pointer; padding: 0 0 0 5px; font-size: 14px; }
+.btn-del-scene:hover { color: #ff4d4d; }
+.btn-add-scene { text-align: center; background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.15); font-size: 12px; padding: 6px; color: #ffffff; }
+
+/* Зона карты */
+#map-container { flex-grow: 1; background-color: #0b0c10; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: grab; }
+#map-container:active { cursor: grabbing; }
+
+#zoom-wrapper { position: absolute; width: 618px; height: 447px; transform-origin: center center; }
+/* Тень под картой 618х447 */
+#map-bg { position: absolute; width: 618px; height: 447px; background-color: #000000; background-size: 100% 100%; background-position: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05); }
+#paint-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; pointer-events: none; }
+
+/* Фишки */
+.token { position: absolute; color: white; user-select: none; box-shadow: 0 4px 15px rgba(0,0,0,0.7); z-index: 50; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: move; }
+
+/* Компактные отряды (35х35) с тонкими темными рамками */
+.team-token { width: 35px; height: 35px; border-radius: 6px; }
+.team-token img { width: 18px; height: 18px; object-fit: contain; pointer-events: none; }
+.team-token span { font-size: 6px; scale: 0.9; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; box-sizing: border-box; margin-top: 1px; }
+
+/* Постройки (24х24) */
+.obj-token { width: 24px; height: 24px; border-radius: 4px; background: rgba(20, 21, 26, 0.9); }
+.obj-token img { width: 14px; height: 14px; object-fit: contain; pointer-events: none; }
+
+/* Стильные темные обводки вместо ярких цветных фонов */
+.shytrma { background: rgba(100, 20, 20, 0.85); border: 1.5px solid #cc3333; }
+.gazeli { background: rgba(20, 50, 100, 0.85); border: 1.5px solid #2277cc; }
+.polyraki { background: rgba(15, 75, 40, 0.85); border: 1.5px solid #22aa55; }
+.ralik-t { background: rgba(100, 60, 15, 0.85); border: 1.5px solid #dd8811; }
+.podderzhka { background: rgba(15, 80, 85, 0.85); border: 1.5px solid #119988; }
+
+.obj-barricade { border: 1.5px solid #aa3333; background: rgba(40, 15, 15, 0.9); }
+.obj-tent { border: 1.5px solid #7733aa; background: rgba(30, 15, 45, 0.9); }
+.obj-ralik { border: 1.5px solid #cca300; background: rgba(40, 35, 10, 0.9); }

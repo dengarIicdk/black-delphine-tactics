@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тактическая Доска - BLACK DELPHINE</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0b0c10;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: rgba(17, 18, 23, 0.85); 
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        h3 { margin: 3px 0; font-size: 16px; text-align: center; color: #ffffff; letter-spacing: 2px; font-weight: bold; }
+        h4 { margin: 12px 0 4px 0; color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        button {
+            background-color: rgba(255, 255, 255, 0.04);
+            color: #b3b3b3;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        button:hover { 
+            background-color: rgba(255, 255, 255, 0.09); 
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        button.active { 
+            background-color: rgba(255, 255, 255, 0.15); 
+            border-color: rgba(255, 255, 255, 0.4); 
+            color: #ffffff;
+        }
+        
+        .btn-map { background-color: rgba(255, 255, 255, 0.02); }
+        .btn-map.active { 
+            background-color: rgba(255, 255, 255, 0.12); 
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        #color-picker { display: flex; gap: 8px; margin-top: 2px; }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.selected { border-color: #ffffff; transform: scale(1.15); }
+
+        .object-spawn-panel { display: flex; flex-direction: column; gap: 5px; }
+        .spawn-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 12px; color: #aaaaaa; }
+        .btn-spawn { padding: 3px 8px; font-size: 11px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+        #scenes-list { display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
+        .scene-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; }
+        .scene-item.active { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.25); }
+        .scene-name { font-size: 13px; font-weight: bold; color: #dddddd; flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .scene-item.active .scene-name { color: #ffffff; }
+        .btn-del-scene { background: transparent; border: none; color: #888888; cursor: pointer; padding: 0 0 0 5px; font-size: 14px; }
+        .btn-del-scene:hover { color: #ff4d4d; }
+        .btn-add-scene { text-align: center; background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.15); font-size: 12px; padding: 6px; color: #ffffff; }
+
+        /* Зона карты */
+        #map-container { flex-grow: 1; background-color: #0b0c10; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        #zoom-wrapper { position: absolute; width: 618px; height: 447px; transform-origin: center center; }
+        #map-bg { position: absolute; width: 618px; height: 447px; background-color: #000000; background-size: 100% 100%; background-position: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05); }
+        #paint-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; pointer-events: none; }
+
+        /* Тактический маркер-контейнер (невидим сам по себе) */
+        .token { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            z-index: 50; 
+            box-sizing: border-box; 
+            cursor: move; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        /* Зона легкого захвата мыши */
+        .token::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            z-index: 1;
+        }
+
+        /* Сама цветная мини-точка */
+        .token-dot-visual {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        /* АККУРАТНЫЙ МЕЛКИЙ ТЕКСТ ПОД ТОЧКОЙ */
+        .token span {
+            position: absolute;
+            top: 11px; /* Сдвинут строго под точку */
+            font-size: 6px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px #000000, -1px -1px 2px #000000, 1px -1px 2px #000000, -1px 1px 2px #000000; /* Чёрный контур, чтобы текст читался на любой карте */
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+            letter-spacing: 0.1px;
+        }
+
+        /* Цвета и свечение точек отрядов */
+        .shytrma .token-dot-visual { background: #ff3333; border: 1px solid #ffffff; box-shadow: 0 0 6px #ff3333; }
+        .gazeli .token-dot-visual { background: #3399ff; border: 1px solid #ffffff; box-shadow: 0 0 6px #3399ff; }
+        .polyraki .token-dot-visual { background: #2ecc71; border: 1px solid #ffffff; box-shadow: 0 0 6px #2ecc71; }
+        .ralik-t .token-dot-visual { background: #f39c12; border: 1px solid #ffffff; box-shadow: 0 0 6px #f39c12; }
+        .podderzhka .token-dot-visual { background: #1abc9c; border: 1px solid #ffffff; box-shadow: 0 0 6px #1abc9c; }
+
+        /* Постройки делаем квадратной формы, чтобы отличались, текст тоже серый и мелкий */
+        .obj-barricade .token-dot-visual { background: #e74c3c; border: 1px solid #000000; border-radius: 0%; }
+        .obj-tent .token-dot-visual { background: #9b59b6; border: 1px solid #000000; border-radius: 0%; }
+        .obj-ralik .token-dot-visual { background: #f1c40f; border: 1px solid #000000; border-radius: 0%; }
+        
+        .token[class*="obj-"] span { color: #cccccc; font-size: 5.5px; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h3>BLACK DELPHINE</h3>
+        <hr style="border-color: rgba(255,255,255,0.08); width: 100%; margin: 2px 0;">
+        
+        <h4>Режимы управления</h4>
+        <button id="btn-move" class="active">✋ Режим: Двигать Фишки</button>
+        <button id="btn-pan">🗺️ Режим: Тащить Карту</button>
+        <button id="btn-draw">✏️ Режим: Рисовать</button>
+        
+        <h4>Цвет кисти</h4>
+        <div id="color-picker">
+            <div class="color-dot selected" style="background: #00d2ff;" data-color="#00d2ff"></div>
+            <div class="color-dot" style="background: #ff4d4d;" data-color="#ff4d4d"></div>
+            <div class="color-dot" style="background: #3399ff;" data-color="#3399ff"></div>
+            <div class="color-dot" style="background: #2ecc71;" data-color="#2ecc71"></div>
+            <div class="color-dot" style="background: #f39c12;" data-color="#f39c12"></div>
+        </div>
+
+        <h4>Малые объекты</h4>
+        <div class="object-spawn-panel">
+            <div class="spawn-row">🛑 Баррикада <button class="btn-spawn" onclick="spawnObject('barricade')">+ Создать</button></div>
+            <div class="spawn-row">⛺ Палатка <button class="btn-spawn" onclick="spawnObject('tent')">+ Создать</button></div>
+            <div class="spawn-row">📻 Ралик <button class="btn-spawn" onclick="spawnObject('ralik')">+ Создать</button></div>
+        </div>
+
+        <h4>Сцены тактик</h4>
+        <div id="scenes-list"></div>
+        <button class="btn-add-scene" id="btn-add-scene">+ Добавить сцену</button>
+
+        <h4>Выбор карты</h4>
+        <button class="btn-map active" data-img="nizina.png">🗺️ 1) Низина</button>
+        <button class="btn-map" data-img="hvoynik.png">🗺️ 2) Хвойник</button>
+        <button class="btn-map" data-img="berda_center.png">🗺️ 3) Берда (центр)</button>
+        <button class="btn-map" data-img="berda_side.png">🗺️ 4) Берда (сбоку)</button>
+
+        <button id="btn-reset" style="margin-top: auto; background-color: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); text-align: center;">🔄 Сбросить позиции</button>
+        <button id="btn-clear" style="background-color: rgba(200, 50, 50, 0.15); border-color: rgba(200, 50, 50, 0.3); text-align: center;">🗑️ Очистить стрелки</button>
+    </div>
+
+    <div id="map-container">
+        <div id="zoom-wrapper">
+            <div id="map-bg">
+                <canvas id="paint-canvas" width="618" height="447"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('paint-canvas');
+        const ctx = canvas.getContext('2d');
+        const mapBg = document.getElementById('map-bg');
+        const mapContainer = document.getElementById('map-container');
+        const zoomWrapper = document.getElementById('zoom-wrapper');
+        const btnMove = document.getElementById('btn-move');
+        const btnPan = document.getElementById('btn-pan');
+        const btnDraw = document.getElementById('btn-draw');
+        const btnClear = document.getElementById('btn-clear');
+        const btnReset = document.getElementById('btn-reset');
+        const mapButtons = document.querySelectorAll('.btn-map');
+        const colorDots = document.querySelectorAll('.color-dot');
+        const scenesListContainer = document.getElementById('scenes-list');
+        const btnAddScene = document.getElementById('btn-add-scene');
+
+        let currentMode = 'move';
+        let isDrawing = false;
+        let currentDrawColor = '#00d2ff';
+        let currentMap = 'nizina.png';
+
+        let scale = 1; let panX = 0; let panY = 0;
+        let isPanning = false; let startPanX = 0; let startPanY = 0;
+
+        // Фишки с названиями теперь аккуратно выстраиваются снизу
+        const defaultTeams = [
+            { type: 'team', cls: 'shytrma', label: 'ШТУРМА', x: 20, y: 410 },
+            { type: 'team', cls: 'gazeli', label: 'ГАЗЕЛИ', x: 70, y: 410 },
+            { type: 'team', cls: 'polyraki', label: 'ПОЛУРАКИ', x: 120, y: 410 },
+            { type: 'team', cls: 'ralik-t', label: 'РАЛИК', x: 170, y: 410 },
+            { type: 'team', cls: 'podderzhka', label: 'ПОДДЕРЖКА', x: 220, y: 410 }
+        ];
+
+        let scenes = [{ id: 1, name: 'Сцена 1', canvasData: null, tokens: JSON.parse(JSON.stringify(defaultTeams)), map: 'nizina.png' }];
+        let currentSceneId = 1;
+        mapBg.style.backgroundImage = `url('${currentMap}')`;
+        function renderScenesList() {
+            scenesListContainer.innerHTML = '';
+            scenes.forEach(scene => {
+                const div = document.createElement('div'); div.className = `scene-item ${scene.id == currentSceneId ? 'active' : ''}`;
+                div.onclick = () => switchScene(scene.id);
+                const nameSpan = document.createElement('span'); nameSpan.className = 'scene-name'; nameSpan.innerText = scene.name;
+                nameSpan.ondblclick = (e) => { e.stopPropagation(); const newName = prompt('Название сцены:', scene.name); if (newName) { scene.name = newName; renderScenesList(); } };
+                div.appendChild(nameSpan);
+                if (scenes.length > 1) {
+                    const delBtn = document.createElement('button'); delBtn.className = 'btn-del-scene'; delBtn.innerHTML = '×';
+                    delBtn.onclick = (e) => { e.stopPropagation(); deleteScene(scene.id); }; div.appendChild(delBtn);
+                }
+                scenesListContainer.appendChild(div);
+            });
+        }
+
+        function saveCurrentSceneState() {
+            const currentScene = scenes.find(s => s.id == currentSceneId); if (!currentScene) return;
+            currentScene.canvasData = canvas.toDataURL(); currentScene.map = currentMap; currentScene.tokens = [];
+            document.querySelectorAll('.token').forEach(el => {
+                currentScene.tokens.push({ type: el.dataset.type, cls: el.dataset.cls, label: el.dataset.label, x: parseInt(el.style.left) || 0, y: parseInt(el.style.top) || 0 });
+            });
+        }
+
+        function loadSceneState() {
+            const currentScene = scenes.find(s => s.id == currentSceneId); if (!currentScene) return;
+            currentMap = currentScene.map; mapBg.style.backgroundImage = `url('${currentMap}')`;
+            mapButtons.forEach(b => { b.classList.toggle('active', b.getAttribute('data-img') === currentMap); });
+            ctx.clearRect(0, 0, canvas.width, canvas.height); document.querySelectorAll('.token').forEach(el => el.remove());
+            if (currentScene.canvasData) { const img = new Image(); img.src = currentScene.canvasData; img.onload = () => { ctx.drawImage(img, 0, 0); }; }
+            currentScene.tokens.forEach(t => { createTokenDOM(t); });
+        }
+
+        function switchScene(id) { saveCurrentSceneState(); currentSceneId = id; renderScenesList(); loadSceneState(); }
+        btnAddScene.addEventListener('click', () => { saveCurrentSceneState(); const newId = Date.now(); scenes.push({ id: newId, name: `Сцена ${scenes.length + 1}`, canvasData: null, tokens: JSON.parse(JSON.stringify(defaultTeams)), map: currentMap }); switchScene(newId); });
+        function deleteScene(id) { if (scenes.length <= 1) return; saveCurrentSceneState(); scenes = scenes.filter(s => s.id != id); if (currentSceneId == id) { currentSceneId = scenes.id; } renderScenesList(); loadSceneState(); }
+
+        function createTokenDOM(t) {
+            const div = document.createElement('div'); div.dataset.type = t.type; div.dataset.cls = t.cls; div.dataset.label = t.label;
+            div.className = `token ${t.cls}`;
+            // Добавляем саму внутреннюю цветную точку и текст под неё
+            div.innerHTML = `<div class="token-dot-visual"></div><span>${t.label}</span>`;
+            
+            div.oncontextmenu = (e) => {
+                if (t.type === 'team') return;
+                e.preventDefault();
+                div.remove();
+                saveCurrentSceneState();
+            };
+            div.style.left = t.x + 'px'; div.style.top = t.y + 'px'; mapBg.appendChild(div); initDragForToken(div);
+        }
+
+        window.spawnObject = function(type) {
+            let config = {};
+            if (type === 'barricade') config = { type: 'obj', cls: 'obj-barricade', label: 'БАРРИКАДА', x: 297, y: 211 };
+            if (type === 'tent') config = { type: 'obj', cls: 'obj-tent', label: 'ПАЛАТКА', x: 297, y: 211 };
+            if (type === 'ralik') config = { type: 'obj', cls: 'obj-ralik', label: 'РАЛИК', x: 297, y: 211 };
+            createTokenDOM(config); saveCurrentSceneState();
+        };
+
+        mapButtons.forEach(btn => { btn.addEventListener('click', () => { saveCurrentSceneState(); currentMap = btn.getAttribute('data-img'); mapBg.style.backgroundImage = `url('${currentMap}')`; mapButtons.forEach(b => b.classList.toggle('active', b === btn)); saveCurrentSceneState(); }); });
+        colorDots.forEach(dot => { dot.addEventListener('click', () => { colorDots.forEach(d => d.classList.remove('selected')); dot.classList.add('selected'); currentDrawColor = dot.getAttribute('data-color'); }); });
+
+        function setMode(mode) {
+            currentMode = mode;
+            btnMove.classList.toggle('active', mode === 'move');
+            btnPan.classList.toggle('active', mode === 'pan');
+            btnDraw.classList.toggle('active', mode === 'draw');
+            canvas.style.pointerEvents = (mode === 'draw') ? 'auto' : 'none';
+        }
+
+        btnMove.addEventListener('click', () => setMode('move'));
+        btnPan.addEventListener('click', () => setMode('pan'));
+        btnDraw.addEventListener('click', () => setMode('draw'));
+
+        btnClear.addEventListener('click', () => { ctx.clearRect(0, 0, canvas.width, canvas.height); saveCurrentSceneState(); });
+        btnReset.addEventListener('click', () => { document.querySelectorAll('.token[data-type="team"]').forEach(token => { const def = defaultTeams.find(d => d.label === token.dataset.label); if (def) { token.style.left = def.x + 'px'; token.style.top = def.y + 'px'; } }); document.querySelectorAll('.token[data-type="obj"]').forEach(el => el.remove()); scale = 1; panX = 0; panY = 0; updateTransform(); saveCurrentSceneState(); });
+
+        function updateTransform() { zoomWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`; }
+        
+        mapContainer.addEventListener('wheel', (e) => { e.preventDefault(); if (e.deltaY < 0) scale = Math.min(scale + 0.1, 5); else scale = Math.max(scale - 0.1, 0.5); updateTransform(); });
+
+        mapContainer.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'pan') return;
+            isPanning = true; startPanX = e.clientX - panX; startPanY = e.clientY - panY; e.preventDefault();
+        });
+        document.addEventListener('mousemove', (e) => { if (isPanning && currentMode === 'pan') { panX = e.clientX - startPanX; panY = e.clientY - startPanY; updateTransform(); } });
+        document.addEventListener('mouseup', () => { if (isPanning) isPanning = false; });
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'draw') return;
+            isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); ctx.strokeStyle = currentDrawColor; ctx.lineWidth = 4 / scale; ctx.lineCap = 'round';
+        });
+        canvas.addEventListener('mousemove', (e) => { if (isDrawing && currentMode === 'draw') { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
+        window.addEventListener('mouseup', () => { if (isDrawing) { isDrawing = false; saveCurrentSceneState(); } });
+
+        let activeToken = null; let startX = 0, startY = 0; let tokenLeft = 0, tokenTop = 0;
+        function initDragForToken(token) { 
+            token.addEventListener('mousedown', (e) => { 
+                if (currentMode !== 'move' || e.button !== 0) return; 
+                activeToken = token; startX = e.clientX; startY = e.clientY; tokenLeft = parseInt(token.style.left) || 0; tokenTop = parseInt(token.style.top) || 0; token.style.zIndex = 1000; e.stopPropagation(); 
+            }); 
+        }
+        document.addEventListener('mousemove', (e) => { if (!activeToken) return; const dx = (e.clientX - startX) / scale; const dy = (e.clientY - startY) / scale; let newX = tokenLeft + dx; let newY = tokenTop + dy; newX = Math.max(0, Math.min(newX, 618 - activeToken.offsetWidth)); newY = Math.max(0, Math.min(newY, 447 - activeToken.offsetHeight)); activeToken.style.left = newX + 'px'; activeToken.style.top = newY + 'px'; });
+        document.addEventListener('mouseup', () => { if (activeToken) { activeToken.style.zIndex = '50'; activeToken = null; saveCurrentSceneState(); } });
+
+        renderScenesList(); loadSceneState();
+    </script>
+</body>
+</html>
