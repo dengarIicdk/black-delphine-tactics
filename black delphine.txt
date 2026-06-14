@@ -1,0 +1,28 @@
+nizina_barr_a.png — скриншот баррикады для точки А.
+nizina_barr_b.png — скриншот баррикады для точки B.
+nizina_barr_c.png — скриншот баррикады для точки C.
+nizina_tent_a.png — скриншот палатки для точки А.
+nizina_tent_b.png — скриншот палатки для точки B.
+nizina_ralik_a.png — скриншот ралика для точки А.
+Вот список имен для Хвойника:
+hvoynik_barr_a.png — баррикада для точки А.
+hvoynik_barr_b.png — баррикада для точки B.
+hvoynik_tent_a.png — палатка для точки А.
+hvoynik_ralik_a.png — ралик для точки А.
+Вот список имен для Берды (центр):
+berda_c_barr_a.png — баррикада для точки А.
+berda_c_barr_b.png — баррикада для точки B.
+berda_c_tent_a.png — палатка для точки А.
+berda_c_ralik_a.png — ралик для точки А.
+Вот список имен для Берды (сбоку):
+berda_s_barr_a.png — баррикада для точки А.
+berda_s_barr_b.png — баррикада для точки B.
+berda_s_tent_a.png — палатка для точки А.
+berda_s_ralik_a.png — rалик для точки А.
+Список названий для тактик (пресетов):
+nizina_default.png — скриншот готовой тактики для кнопки Низина (дефолт).
+hvoynik_default.png — скриншот готовой тактики для кнопки Хвойник (дефолт).
+berda_center_default.png — скриншот готовой тактики для кнопки Берда (центр) дефолт.
+berda_side_default.png — скриншот готовой тактики для кнопки Берда (сбоку) дефолт.
+
+<button class="btn-preset" data-preset-img="nizina_default.png" data-map-type="nizina" onclick="selectPresetTactics(this)">📋 Низина (дефолт)</button>
