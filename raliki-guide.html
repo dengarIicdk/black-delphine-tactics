@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Гайды по Раликам - [ZEKK] BLACK DELPHINE</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        /* Глобальные стили в стиле Stalcraft */
+        body {
+            margin: 0;
+            background-color: #0b0d13;
+            color: #e0e6ed;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* Шапка клана */
+        header {
+            background-color: #11141d;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            z-index: 50;
+        }
+
+        .clan-logo-link {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+            .clan-logo-link span {
+                color: #ffb703;
+            }
+
+            .clan-logo-link:hover {
+                color: #ffb703;
+                transform: scale(1.02);
+            }
+
+        /* Контейнер */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+
+        .section-title {
+            font-size: 15px;
+            color: #eab308; /* Подсвечиваем ралики жёлтым неоном */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        /* Переключатели карт (Вкладки) */
+        .tabs-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .tab-btn {
+            background-color: #171b26;
+            color: #a3aab8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+            .tab-btn:hover {
+                background-color: #202636;
+                color: #ffffff;
+            }
+
+            .tab-btn.active {
+                background-color: #272f42;
+                border-color: #eab308; /* Жёлтый контур под цвет раликов */
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+            }
+
+        /* Контейнеры контента карт */
+        .map-content-section {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+            .map-content-section.active {
+                display: block;
+            }
+
+        /* Адаптивная сетка карточек со скриншотами */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .guide-item-card {
+            background: #11141d;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+
+            .guide-item-card h5 {
+                margin: 0;
+                font-size: 12px;
+                color: #ffffff;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .guide-screenshot {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background-color: #000;
+            cursor: zoom-in;
+            transition: opacity 0.2s;
+        }
+
+            .guide-screenshot:hover {
+                opacity: 0.85;
+            }
+
+        /* Полноэкранный умный зум картинок */
+        #img-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+
+            #img-modal img {
+                max-width: 92%;
+                max-height: 92%;
+                border-radius: 8px;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка клана, которая всегда возвращает на главную страницу гайдов -->
+    <header>
+        <a href="base-guide.html" class="clan-logo-link">
+            <span>[ZEKK]</span> BLACK DELPHINE
+        </a>
+    </header>
+
+    <!-- Основной контейнер гайдов по раликам -->
+    <div class="main-container">
+        <div class="section-title">📻 База гайдов по раликам</div>
+
+        <!-- Кнопки выбора карт (Вкладки) -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchMapTab(this, 'tab-nizina')">Низина</button>
+            <button class="tab-btn" onclick="switchMapTab(this, 'tab-hvoynik')">Хвойник</button>
+            <button class="tab-btn" onclick="switchMapTab(this, 'tab-berda')">Берда</button>
+        </div>
+
+        <!-- РАЗДЕЛ 1: НИЗИНА -->
+        <div id="tab-nizina" class="map-content-section active">
+            <div class="images-grid">
+                <div class="guide-item-card">
+                    <h5>Низина — Ралик: Точка A (Кусты)</h5>
+                    <img src="nizina_ralik_a.png" class="guide-screenshot" onclick="openZoomModal(this.src)" alt="Скриншот ралика">
+                </div>
+            </div>
+        </div>
+
+        <!-- РАЗДЕЛ 2: ХВОЙНИК -->
+        <div id="tab-hvoynik" class="map-content-section">
+            <div class="images-grid">
+                <div class="guide-item-card">
+                    <h5>Хвойник — Ралик: Точка A (Низина скалы)</h5>
+                    <img src="hvoynik_ralik_a.png" class="guide-screenshot" onclick="openZoomModal(this.src)" alt="Скриншот ралика">
+                </div>
+            </div>
+        </div>
+
+        <!-- РАЗДЕЛ 3: БЕРДА -->
+        <div id="tab-berda" class="map-content-section">
+            <div class="images-grid">
+                <div class="guide-item-card">
+                    <h5>Берда — Ралик: Точка A (Центр горы)</h5>
+                    <img src="berda_ralik_a.png" class="guide-screenshot" onclick="openZoomModal(this.src)" alt="Скриншот ралика">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно плавного зума скриншотов на весь экран -->
+    <div id="img-modal" onclick="closeZoomModal()">
+        <img id="modal-target-img" src="" alt="Увеличенный скриншот">
+    </div>
+    <script>
+        // Функция мгновенного переключения вкладок карт
+        window.switchMapTab = function (element, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.map-content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            element.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        };
+
+        // Логика открытия картинки на весь экран (Зум)
+        const imgModal = document.getElementById('img-modal');
+        const modalTargetImg = document.getElementById('modal-target-img');
+
+        window.openZoomModal = function (src) {
+            modalTargetImg.src = src;
+            imgModal.style.display = 'flex';
+        };
+
+        window.closeZoomModal = function () {
+            imgModal.style.display = 'none';
+            modalTargetImg.src = '';
+        };
+    </script>
+</body>
+</html>

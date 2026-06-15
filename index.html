@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тактическая Доска - BLACK DELPHINE</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        body {
+            margin: 0;
+            background-color: #0b0d13;
+            color: #e0e6ed;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Стильные темные панели Stalcraft */
+        .panel {
+            background-color: #11141d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 20;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #left-sidebar {
+            width: 220px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #right-sidebar {
+            width: 280px;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 14px;
+            text-align: center;
+            color: #ffffff;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        h4 {
+            margin: 10px 0 2px 0;
+            color: #656e85;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        /* Стилизация кнопок */
+        button {
+            background-color: #171b26;
+            color: #a3aab8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-size: 12px;
+        }
+
+            button:hover {
+                background-color: #202636;
+                color: #ffffff;
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+
+            button:disabled {
+                opacity: 0.25;
+                cursor: not-allowed;
+                background-color: #0f1118;
+            }
+
+            button.active {
+                background-color: #272f42;
+                border-color: #3b82f6;
+                color: #ffffff;
+                box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+            }
+
+        .btn-map {
+            background-color: #131620;
+        }
+
+        /* Палитра цветов рисования, линий и зон */
+        #color-picker {
+            display: flex;
+            gap: 6px;
+            margin-top: 2px;
+            flex-wrap: wrap;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+            .color-dot.selected {
+                border-color: #ffffff;
+                transform: scale(1.15);
+            }
+
+            .color-dot.disabled {
+                opacity: 0.15;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+        /* Верхняя панель для внешней ссылки на базу гайдов */
+        #top-right-menu {
+            position: absolute;
+            top: 15px;
+            right: 305px;
+            z-index: 30;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-guide-link {
+            background-color: rgba(17, 20, 29, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid #ffb703;
+            color: #ffb703;
+            font-size: 11px;
+            padding: 9px 16px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+            .btn-guide-link:hover {
+                background-color: #ffb703;
+                color: #11141d;
+            }
+
+        /* Интерактивный список отрядов справа */
+        .squad-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .squad-card-item {
+            background-color: #161a24;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+            .squad-card-item:hover {
+                background-color: #1e2433;
+                border-color: rgba(255, 255, 255, 0.12);
+            }
+
+        .squad-card-badge {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .squad-card-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .squad-card-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .squad-card-sub {
+            font-size: 10px;
+            color: #656e85;
+            margin-top: 2px;
+        }
+
+        /* Зона карты */
+        #map-container {
+            flex-grow: 1;
+            background-color: #07080c;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #zoom-wrapper {
+            position: absolute;
+            width: 618px;
+            height: 447px;
+            transform-origin: center center;
+        }
+
+        #map-bg {
+            position: absolute;
+            width: 618px;
+            height: 447px;
+            background-color: #000000;
+            background-size: 100% 100%;
+            background-position: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Холсты для графики */
+        #paint-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+            #paint-canvas.paintable {
+                cursor: crosshair;
+            }
+
+        /* Фишки боевых отрядов (Крупные — 14px со свечением и именами) */
+        .token {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            z-index: 50;
+            box-sizing: border-box;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+            .token::before {
+                content: '';
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                right: -10px;
+                bottom: -10px;
+                z-index: 1;
+            }
+
+        .token-dot-visual {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        .token span {
+            position: absolute;
+            left: 10px; /* Немного прижали текст к фишке, так как она стала меньше */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4px; /* Уменьшили с 8px до 6.5px — теперь он миниатюрный и не мешает */
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 3;
+            letter-spacing: 0.3px; /* Слегка сузили расстояние между буквами */
+            text-transform: uppercase;
+        }
+
+
+
+
+        /* Фишки малых объектов (Без имен, в 2 раза меньше — 7px, квадратные) */
+        .token.obj-token {
+            width: 7px;
+            height: 7px;
+        }
+
+            .token.obj-token .token-dot-visual {
+                width: 7px;
+                height: 7px;
+                border-radius: 2px;
+            }
+
+            .token.obj-token span {
+                display: none !important;
+            }
+
+        /* Свечение отрядов */
+        .shytrma .token-dot-visual {
+            background: #ef4444;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #ef4444;
+        }
+
+        .gazeli .token-dot-visual {
+            background: #3b82f6;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #3b82f6;
+        }
+
+        .polyraki .token-dot-visual {
+            background: #10b981;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .ralik-t .token-dot-visual {
+            background: #f59e0b;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #f59e0b;
+        }
+
+        .podderzhka .token-dot-visual {
+            background: #06b6d4;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #06b6d4;
+        }
+
+        .zamena .token-dot-visual {
+            background: #9b59b6;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 8px #9b59b6;
+        }
+
+        /* Цвета объектов */
+        .obj-barricade .token-dot-visual {
+            background: #dc2626;
+            border: 1px solid #000;
+            box-shadow: 0 0 4px rgba(220, 38, 38, 0.5);
+        }
+
+        .obj-tent .token-dot-visual {
+            background: #8b5cf6;
+            border: 1px solid #000;
+            box-shadow: 0 0 4px rgba(139, 92, 246, 0.5);
+        }
+
+        .obj-ralik .token-dot-visual {
+            background: #eab308;
+            border: 1px solid #000;
+            box-shadow: 0 0 4px rgba(234, 179, 8, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Верхняя панель со ссылкой на второй сайт (Базу Гайдов) -->
+    <!-- ПОЗЖЕ ЗАМЕНИ ТЕКСТ В href НА СВОЮ РЕАЛЬНУЮ ССЫЛКУ ПОСЛЕ СОЗДАНИЯ ВТОРОГО САЙТА -->
+    <div id="top-right-menu">
+        <a href="base-guide.html" target="_blank" class="btn-guide-link">📖 Открыть базу гайдов →</a>
+    </div>
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ИКОНКИ ОБЪЕКТОВ И УПРАВЛЕНИЕ РАЗМЕТКОЙ -->
+    <div id="left-sidebar" class="panel">
+        <h3>BLACK DELPHINE</h3>
+        <hr style="border-color: rgba(255,255,255,0.05); width: 100%; margin: 0;">
+
+        <h4>Режимы управления</h4>
+        <button id="btn-move" class="active">✋ Двигать фишки</button>
+        <button id="btn-pan">🗺️ Тащить карту</button>
+        <button id="btn-line">📐 Инструмент: Линия</button>
+        <button id="btn-zone">🔷 Инструмент: Зона (База)</button>
+        <button id="btn-erase">🧽 Режим ластика</button>
+
+        <h4>Цвет разметки</h4>
+        <div id="color-picker">
+            <div class="color-dot selected" style="background: #00d2ff;" data-color="#00d2ff"></div>
+            <div class="color-dot" style="background: #ef4444;" data-color="#ef4444"></div>
+            <div class="color-dot" style="background: #3b82f6;" data-color="#3b82f6"></div>
+            <div class="color-dot" style="background: #10b981;" data-color="#10b981"></div>
+            <div class="color-dot" style="background: #f59e0b;" data-color="#f59e0b"></div>
+            <div class="color-dot" style="background: #9b59b6;" data-color="#9b59b6"></div>
+        </div>
+
+        <h4>Иконки объектов</h4>
+        <button id="spawn-barricade" onclick="spawnObject('barricade')"><span style="color: #dc2626; margin-right: 5px;">■</span> Поставить Баррикаду</button>
+        <button id="spawn-tent" onclick="spawnObject('tent')"><span style="color: #8b5cf6; margin-right: 5px;">■</span> Поставить Палатку</button>
+        <button id="spawn-ralik" onclick="spawnObject('ralik')"><span style="color: #eab308; margin-right: 5px;">■</span> Поставить Ралик</button>
+
+        <button id="btn-reset" style="margin-top: auto; background-color: rgba(255,255,255,0.02); text-align: center;">🔄 Сбросить фишки</button>
+        <button id="btn-clear" style="background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); text-align: center; color: #fca5a5;">🗑️ Очистить разметку</button>
+    </div>
+
+    <!-- ЦЕНТРАЛЬНЫЙ ХОЛСТ С КАРТОЙ -->
+    <div id="map-container">
+        <div id="zoom-wrapper">
+            <div id="map-bg">
+                <canvas id="paint-canvas" width="618" height="447"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ: ТАКТИКИ И МЕНЮ ИНТЕРАКТИВНЫХ ОТРЯДОВ -->
+    <div id="right-sidebar" class="panel">
+        <h3>Управление боем</h3>
+        <hr style="border-color: rgba(255,255,255,0.05); width: 100%; margin: 0;">
+
+        <h4>Сцены тактик (Просмотр)</h4>
+        <div id="tactics-presets-list" style="display: flex; flex-direction: column; gap: 5px;">
+            <button class="btn-preset" data-preset-img="nizina_default.png" data-map-type="nizina" onclick="selectPresetTactics(this)">📋 Низина (дефолт)</button>
+            <button class="btn-preset" data-preset-img="hvoynik_default.png" data-map-type="hvoynik" onclick="selectPresetTactics(this)">📋 Хвойник (дефолт)</button>
+            <button class="btn-preset" data-preset-img="berda_center_default.png" data-map-type="berda_center" onclick="selectPresetTactics(this)">📋 Берда (центр)</button>
+            <button class="btn-preset" data-preset-img="berda_side_default.png" data-map-type="berda_side" onclick="selectPresetTactics(this)">📋 Берда (сбоку)</button>
+        </div>
+
+        <h4>Выбор карты (Редактор)</h4>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <button class="btn-map active" data-img="nizina.png" data-map-type="nizina">🗺️ 1) Низина</button>
+            <button class="btn-map" data-img="hvoynik.png" data-map-type="hvoynik">🗺️ 2) Хвойник</button>
+            <button class="btn-map" data-img="berda_center.png" data-map-type="berda_center">🗺️ 3) Берда (центр)</button>
+            <button class="btn-map" data-img="berda_side.png" data-map-type="berda_side">🗺️ 4) Берда (сбоку)</button>
+        </div>
+
+        <!-- МЕНЮ ОТРЯДОВ -->
+        <h4 id="squads-header-title">Отряды (Клик для спавна)</h4>
+        <div class="squad-list-container" id="squads-sidebar-container">
+            <div class="squad-card-item" onclick="spawnSquadToken('shytrma', 'ШТУРМА')">
+                <div class="squad-card-badge" style="background: #ef4444; box-shadow: 0 0 6px #ef4444;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Штурма (1-й отряд)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+            <div class="squad-card-item" onclick="spawnSquadToken('gazeli', 'ГАЗЕЛИ')">
+                <div class="squad-card-badge" style="background: #3b82f6; box-shadow: 0 0 6px #3b82f6;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Газели (2-й отряд)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+            <div class="squad-card-item" onclick="spawnSquadToken('polyraki', 'ПОЛУРАКИ')">
+                <div class="squad-card-badge" style="background: #10b981; box-shadow: 0 0 6px #10b981;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Полураки (3-й отряд)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+            <div class="squad-card-item" onclick="spawnSquadToken('ralik-t', 'РАЛИК')">
+                <div class="squad-card-badge" style="background: #f59e0b; box-shadow: 0 0 6px #f59e0b;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Ралик (Спец-отряд)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+            <div class="squad-card-item" onclick="spawnSquadToken('podderzhka', 'ПОДДЕРЖКА')">
+                <div class="squad-card-badge" style="background: #06b6d4; box-shadow: 0 0 6px #06b6d4;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Поддержка (Хом Локи)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+            <div class="squad-card-item" onclick="spawnSquadToken('zamena', 'МИГРАНТЫ')">
+                <div class="squad-card-badge" style="background: #9b59b6; box-shadow: 0 0 6px #9b59b6;"></div>
+                <div class="squad-card-info">
+                    <div class="squad-card-title">Мигранты (Резерв)</div>
+                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('paint-canvas');
+        const ctx = canvas.getContext('2d');
+        const mapBg = document.getElementById('map-bg');
+        const mapContainer = document.getElementById('map-container');
+        const zoomWrapper = document.getElementById('zoom-wrapper');
+        const btnMove = document.getElementById('btn-move');
+        const btnPan = document.getElementById('btn-pan');
+        const btnLine = document.getElementById('btn-line');
+        const btnZone = document.getElementById('btn-zone');
+        const btnErase = document.getElementById('btn-erase');
+        const btnClear = document.getElementById('btn-clear');
+        const btnReset = document.getElementById('btn-reset');
+        const mapButtons = document.querySelectorAll('.btn-map');
+        const colorDots = document.querySelectorAll('.color-dot');
+        const presetButtons = document.querySelectorAll('.btn-preset');
+
+        let currentMode = 'move';
+        let currentDrawColor = '#00d2ff';
+        let currentMap = 'nizina.png';
+        let currentMapType = 'nizina';
+        let isPresetMode = false;
+
+        let scale = 1; let panX = 0; let panY = 0;
+        let isPanning = false; let startPanX = 0; let startPanY = 0;
+
+        let activeLinePoints = null;
+        let activeZonePoints = [];
+
+        let sceneStates = {};
+
+        mapBg.style.backgroundImage = `url('${currentMap}')`;
+
+        function saveCurrentSceneState() {
+            if (isPresetMode) return;
+
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
+            if (!currentImg) return;
+
+            const tokens = [];
+            document.querySelectorAll('.token').forEach(el => {
+                tokens.push({
+                    type: el.dataset.type,
+                    cls: el.dataset.cls,
+                    label: el.dataset.label,
+                    x: parseInt(el.style.left) || 0,
+                    y: parseInt(el.style.top) || 0
+                });
+            });
+
+            const existingGeom = sceneStates[currentImg] || { lines: [], zones: [] };
+
+            sceneStates[currentImg] = {
+                tokens: tokens,
+                lines: existingGeom.lines || [],
+                zones: existingGeom.zones || []
+            };
+        }
+
+        function loadSceneState(targetImg) {
+            document.querySelectorAll('.token').forEach(el => el.remove());
+            activeLinePoints = null;
+            activeZonePoints = [];
+
+            if (isPresetMode) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                setMode('pan');
+                return;
+            }
+
+            const state = sceneStates[targetImg];
+            if (state && state.tokens) {
+                state.tokens.forEach(t => { createTokenDOM(t); });
+            }
+            redrawGeometry();
+        }
+        window.selectPresetTactics = function (element) {
+            saveCurrentSceneState();
+            presetButtons.forEach(btn => btn.classList.remove('active'));
+            mapButtons.forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+
+            const presetImg = element.getAttribute('data-preset-img');
+            currentMapType = element.getAttribute('data-map-type');
+            isPresetMode = true;
+
+            // Жесткая блокировка редактора при просмотре готовых тактик
+            document.getElementById('spawn-barricade').disabled = true;
+            document.getElementById('spawn-tent').disabled = true;
+            document.getElementById('spawn-ralik').disabled = true;
+            document.getElementById('btn-line').disabled = true;
+            document.getElementById('btn-zone').disabled = true;
+            document.getElementById('btn-erase').disabled = true;
+            document.getElementById('btn-move').disabled = true;
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.add('disabled'));
+            document.getElementById('squads-sidebar-container').style.opacity = '0.2';
+            document.getElementById('squads-sidebar-container').style.pointerEvents = 'none';
+
+            if (presetImg) {
+                mapBg.style.backgroundImage = `url('${presetImg}')`;
+                loadSceneState(presetImg);
+            }
+        };
+
+        mapButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                saveCurrentSceneState();
+                presetButtons.forEach(p => p.classList.remove('active'));
+                mapButtons.forEach(b => b.classList.toggle('active', b === btn));
+
+                currentMap = btn.getAttribute('data-img');
+                currentMapType = btn.getAttribute('data-map-type');
+                isPresetMode = false;
+
+                // Включение редактора для чистой карты
+                document.getElementById('spawn-barricade').disabled = false;
+                document.getElementById('spawn-tent').disabled = false;
+                document.getElementById('spawn-ralik').disabled = false;
+                document.getElementById('btn-line').disabled = false;
+                document.getElementById('btn-zone').disabled = false;
+                document.getElementById('btn-erase').disabled = false;
+                document.getElementById('btn-move').disabled = false;
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('disabled'));
+                document.getElementById('squads-sidebar-container').style.opacity = '1';
+                document.getElementById('squads-sidebar-container').style.pointerEvents = 'auto';
+                setMode('move');
+
+                mapBg.style.backgroundImage = `url('${currentMap}')`;
+                loadSceneState(currentMap);
+            });
+        });
+
+        function redrawGeometry() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
+            if (!currentImg || !sceneStates[currentImg]) return;
+
+            const state = sceneStates[currentImg];
+
+            if (state.zones) {
+                state.zones.forEach(zone => {
+                    if (zone.points.length < 2) return;
+                    ctx.beginPath();
+                    ctx.moveTo(zone.points[0].x, zone.points[0].y);
+                    for (let i = 1; i < zone.points.length; i++) {
+                        ctx.lineTo(zone.points[i].x, zone.points[i].y);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = zone.color + '2e';
+                    ctx.fill();
+                    ctx.strokeStyle = zone.color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+
+            if (state.lines) {
+                state.lines.forEach(line => {
+                    ctx.beginPath();
+                    ctx.moveTo(line.start.x, line.start.y);
+                    ctx.lineTo(line.end.x, line.end.y);
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = 2.5;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(line.start.x, line.start.y, 2.5, 0, Math.PI * 2);
+                    ctx.arc(line.end.x, line.end.y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+        colorDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                if (isPresetMode) return;
+                colorDots.forEach(d => d.classList.remove('selected'));
+                dot.classList.add('selected');
+                currentDrawColor = dot.getAttribute('data-color');
+            });
+        });
+
+        function setMode(mode) {
+            if (isPresetMode) {
+                currentMode = 'pan';
+                btnMove.classList.remove('active');
+                btnPan.classList.add('active');
+                btnLine.classList.remove('active');
+                btnZone.classList.remove('active');
+                btnErase.classList.remove('active');
+                canvas.style.pointerEvents = 'none';
+                return;
+            }
+
+            currentMode = mode;
+            btnMove.classList.toggle('active', mode === 'move');
+            btnPan.classList.toggle('active', mode === 'pan');
+            btnLine.classList.toggle('active', mode === 'line');
+            btnZone.classList.toggle('active', mode === 'zone');
+            btnErase.classList.toggle('active', mode === 'erase');
+
+            canvas.style.pointerEvents =
+                (mode !== 'move' && mode !== 'pan') ? 'auto' : 'none';
+
+            document.querySelectorAll('.token').forEach(token => {
+                token.style.pointerEvents = (mode === 'move') ? 'auto' : 'none';
+            });
+
+            activeLinePoints = null;
+            activeZonePoints = [];
+            redrawGeometry();
+        }
+
+        btnMove.addEventListener('click', () => setMode('move'));
+        btnPan.addEventListener('click', () => setMode('pan'));
+        btnLine.addEventListener('click', () => setMode('line'));
+        btnZone.addEventListener('click', () => setMode('zone'));
+        btnErase.addEventListener('click', () => setMode('erase'));
+
+        btnClear.addEventListener('click', () => {
+            if (isPresetMode) return;
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
+            if (currentImg && sceneStates[currentImg]) {
+                sceneStates[currentImg].lines = [];
+                sceneStates[currentImg].zones = [];
+            }
+            activeLinePoints = null;
+            activeZonePoints = [];
+            redrawGeometry();
+            saveCurrentSceneState();
+        });
+
+        btnReset.addEventListener('click', () => {
+            if (isPresetMode) return;
+            document.querySelectorAll('.token').forEach(el => el.remove());
+            scale = 1; panX = 0; panY = 0;
+            updateTransform();
+            saveCurrentSceneState();
+        });
+
+        function updateTransform() {
+            zoomWrapper.style.transform =
+                `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) scale = Math.min(scale + 0.1, 5);
+            else scale = Math.max(scale - 0.1, 0.5);
+            updateTransform();
+        });
+
+        mapContainer.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'pan' && !isPresetMode) return;
+            isPanning = true;
+            startPanX = e.clientX - panX;
+            startPanY = e.clientY - panY;
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isPanning && (currentMode === 'pan' || isPresetMode)) {
+                panX = e.clientX - startPanX;
+                panY = e.clientY - startPanY;
+                updateTransform();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isPanning) isPanning = false;
+        });
+        canvas.addEventListener('mousedown', (e) => {
+            if (isPresetMode) return;
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
+            if (!currentImg) return;
+
+            if (!sceneStates[currentImg]) {
+                sceneStates[currentImg] = { tokens: [], lines: [], zones: [] };
+            }
+
+            const x = e.offsetX;
+            const y = e.offsetY;
+
+            if (currentMode === 'line') {
+                if (!activeLinePoints) {
+                    activeLinePoints = { x: x, y: y };
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    sceneStates[currentImg].lines.push({
+                        start: activeLinePoints,
+                        end: { x: x, y: y },
+                        color: currentDrawColor
+                    });
+                    activeLinePoints = null;
+                    redrawGeometry();
+                    saveCurrentSceneState();
+                }
+            }
+
+            if (currentMode === 'zone') {
+                if (activeZonePoints.length > 2 &&
+                    Math.hypot(x - activeZonePoints[0].x, y - activeZonePoints[0].y) < 12) {
+
+                    sceneStates[currentImg].zones.push({
+                        points: activeZonePoints,
+                        color: currentDrawColor
+                    });
+                    activeZonePoints = [];
+                    redrawGeometry();
+                    saveCurrentSceneState();
+                } else {
+                    activeZonePoints.push({ x: x, y: y });
+
+                    ctx.strokeStyle = currentDrawColor;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(activeZonePoints[0].x, activeZonePoints[0].y);
+                    for (let i = 1; i < activeZonePoints.length; i++) {
+                        ctx.lineTo(activeZonePoints[i].x, activeZonePoints[i].y);
+                    }
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            if (currentMode === 'erase') {
+                const clickX = x;
+                const clickY = y;
+                const eraseRadius = 15;
+
+                sceneStates[currentImg].lines = sceneStates[currentImg].lines.filter(line => {
+                    const dStart = Math.hypot(line.start.x - clickX, line.start.y - clickY);
+                    const dEnd = Math.hypot(line.end.x - clickX, line.end.y - clickY);
+                    return dStart > eraseRadius && dEnd > eraseRadius;
+                });
+
+                sceneStates[currentImg].zones = sceneStates[currentImg].zones.filter(zone => {
+                    return !zone.points.some(pt => Math.hypot(pt.x - clickX, pt.y - clickY) < eraseRadius);
+                });
+
+                redrawGeometry();
+                saveCurrentSceneState();
+            }
+        });
+
+        let activeToken = null;
+        let startX = 0, startY = 0;
+        let tokenLeft = 0, tokenTop = 0;
+
+        function initDragForToken(token) {
+            token.addEventListener('mousedown', (e) => {
+                if (isPresetMode) return;
+                if (currentMode !== 'move' || e.button !== 0) return;
+                activeToken = token;
+                startX = e.clientX;
+                startY = e.clientY;
+                tokenLeft = parseInt(token.style.left) || 0;
+                tokenTop = parseInt(token.style.top) || 0;
+                token.style.zIndex = 1000;
+                e.stopPropagation();
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!activeToken || isPresetMode) return;
+            const dx = (e.clientX - startX) / scale;
+            const dy = (e.clientY - startY) / scale;
+            let newX = tokenLeft + dx;
+            let newY = tokenTop + dy;
+            newX = Math.max(0, Math.min(newX, 618 - activeToken.offsetWidth));
+            newY = Math.max(0, Math.min(newY, 447 - activeToken.offsetHeight));
+            activeToken.style.left = newX + 'px';
+            activeToken.style.top = newY + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (activeToken) {
+                activeToken.style.zIndex = '50';
+                activeToken = null;
+                saveCurrentSceneState();
+            }
+        });
+
+        function createTokenDOM(t) {
+            const div = document.createElement('div');
+            div.dataset.type = t.type;
+            div.dataset.cls = t.cls;
+            div.dataset.label = t.label;
+
+            if (t.type === 'obj') {
+                div.className = `token obj-token ${t.cls}`;
+            } else {
+                div.className = `token ${t.cls}`;
+            }
+
+            div.innerHTML =
+                `<div class="token-dot-visual"></div><span>${t.label}</span>`;
+
+            if (currentMode !== 'move') {
+                div.style.pointerEvents = 'none';
+            }
+
+            div.oncontextmenu = (e) => {
+                if (isPresetMode) return;
+                e.preventDefault();
+                div.remove();
+                saveCurrentSceneState();
+            };
+            div.style.left = t.x + 'px';
+            div.style.top = t.y + 'px';
+            mapBg.appendChild(div);
+            initDragForToken(div);
+        }
+
+        window.spawnSquadToken = function (cls, label) {
+            if (isPresetMode) return;
+            if (document.querySelector(`.token.${cls}`)) return;
+
+            const config = { type: 'team', cls: cls, label: label, x: 295, y: 210 };
+            createTokenDOM(config);
+            saveCurrentSceneState();
+        };
+
+        window.spawnObject = function (type) {
+            if (isPresetMode) return;
+            let config = {};
+            if (type === 'barricade') {
+                config = { type: 'obj', cls: 'obj-barricade', label: '', x: 297, y: 211 };
+            }
+            if (type === 'tent') {
+                config = { type: 'obj', cls: 'obj-tent', label: '', x: 297, y: 211 };
+            }
+            if (type === 'ralik') {
+                config = { type: 'obj', cls: 'obj-ralik', label: '', x: 297, y: 211 };
+            }
+            createTokenDOM(config);
+            saveCurrentSceneState();
+        };
+
+        loadSceneState(currentMap);
+    </script>
+</body>
+</html>

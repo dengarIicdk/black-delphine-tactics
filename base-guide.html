@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>База Гайдов - [ZEKK] BLACK DELPHINE</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        /* Глобальные стили в стилистике Stalcraft КВ */
+        body {
+            margin: 0;
+            background-color: #0b0d13;
+            color: #e0e6ed;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Сайт строго на весь экран без прокрутки */
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Обновленная шапка сайта */
+        header {
+            background-color: #11141d;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            z-index: 50;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        /* Кнопка возврата на тактическую доску слева сверху */
+        .btn-back-to-board {
+            position: absolute;
+            left: 20px;
+            background-color: #171b26;
+            color: #a3aab8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+            .btn-back-to-board:hover {
+                background-color: #202636;
+                color: #ffffff;
+                border-color: #3b82f6;
+                box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+            }
+
+        .clan-logo-link {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+            .clan-logo-link span {
+                color: #ffb703;
+            }
+        /* Контейнер-сетка, растянутый во весь экран сразу под колонтитулом */
+        .columns-container {
+            flex-grow: 1;
+            display: flex;
+            width: 100vw;
+            height: calc(100vh - 60px); /* Минус высота шапки */
+            box-sizing: border-box;
+            background-color: #07080c;
+        }
+
+        /* Общие стили для каждой из 3 вертикальных секций */
+        .guide-column-link {
+            flex: 1; /* Каждая колонка занимает ровно 1/3 ширины */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-sizing: border-box;
+            padding: 40px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            background-color: #11141d;
+        }
+
+            /* Тонкие разделительные линии между колонками */
+            .guide-column-link:not(:last-child) {
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+        /* Эффект легкого затемнения неактивных колонок при наведении на одну из них */
+        .columns-container:hover .guide-column-link:not(:hover) {
+            opacity: 0.4;
+            filter: blur(1px);
+        }
+
+        /* Индивидуальные фоны и неоновое подсвечивание колонок при наведении */
+        .guide-column-link.col-barriki:hover {
+            background-color: rgba(220, 38, 38, 0.02);
+            box-shadow: inset 0 0 40px rgba(220, 38, 38, 0.15);
+        }
+
+        .guide-column-link.col-palatki:hover {
+            background-color: rgba(139, 92, 246, 0.02);
+            box-shadow: inset 0 0 40px rgba(139, 92, 246, 0.15);
+        }
+
+        .guide-column-link.col-raliki:hover {
+            background-color: rgba(234, 179, 8, 0.02);
+            box-shadow: inset 0 0 40px rgba(234, 179, 8, 0.15);
+        }
+
+        /* Стили внутренних элементов колонок */
+        .col-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .guide-column-link:hover .col-icon {
+            transform: scale(1.15);
+        }
+
+        .col-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 15px 0;
+            transition: color 0.3s;
+        }
+        /* Окрашивание заголовков при наведении в цвета разделов */
+        .col-barriki:hover .col-title {
+            color: #dc2626;
+        }
+
+        .col-palatki:hover .col-title {
+            color: #8b5cf6;
+        }
+
+        .col-raliki:hover .col-title {
+            color: #eab308;
+        }
+
+        .col-desc {
+            font-size: 13px;
+            color: #656e85;
+            margin: 0;
+            line-height: 1.5;
+            text-align: center;
+            max-width: 280px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Верхняя шапка с кнопкой возврата на интерактивную доску -->
+    <header>
+        <!-- Ссылка на файл вашей тактической доски -->
+        <a href="index.html" class="btn-back-to-board">← На тактическую доску</a>
+
+        <div class="clan-logo-link">
+            <span>[ZEKK]</span> BLACK DELPHINE
+        </div>
+    </header>
+
+    <!-- 3 огромные вертикальные колонки на весь экран -->
+    <div class="columns-container">
+
+        <!-- Секция 1: БАРРИКАДЫ (Левая колонка) -->
+        <a href="barriki-guide.html" class="guide-column-link col-barriki">
+            <div class="col-icon">🛑</div>
+            <div class="col-title">Баррикады</div>
+            <div class="col-desc">Позиции, укрепления проходов и чертежи мешков на точках</div>
+        </a>
+
+        <!-- Секция 2: ПАЛАТКИ (Центральная колонка) -->
+        <a href="palatki-guide.html" class="guide-column-link col-palatki">
+            <div class="col-icon">⛺</div>
+            <div class="col-title">Палатки</div>
+            <div class="col-desc">Места скрытой установки мобильных аванпостов на картах</div>
+        </a>
+
+        <!-- Секция 3: РАЛИКИ (Правая колонка) -->
+        <a href="raliki-guide.html" class="guide-column-link col-raliki">
+            <div class="col-icon">📻</div>
+            <div class="col-title">Ралики</div>
+            <div class="col-desc">Точки скрытых радиомаяков для быстрого респавна отрядов</div>
+        </a>
+
+    </div>
+
+</body>
+</html>
