@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Тактическая Доска - BLACK DELPHINE</title>
+    <title>Тактическая Карта - BLACK DELPHINE</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
         body {
@@ -16,7 +16,7 @@
             user-select: none;
         }
 
-        /* Стильные темные панели Stalcraft */
+        /* СТИЛЬНЫЕ ТЕМНЫЕ ПАНЕЛИ STALCRAFT */
         .panel {
             background-color: #11141d;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -57,7 +57,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        /* Стилизация кнопок */
+
         button {
             background-color: #171b26;
             color: #a3aab8;
@@ -69,18 +69,17 @@
             transition: all 0.2s ease;
             text-align: left;
             font-size: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
             button:hover {
                 background-color: #202636;
                 color: #ffffff;
                 border-color: rgba(255, 255, 255, 0.15);
-            }
-
-            button:disabled {
-                opacity: 0.25;
-                cursor: not-allowed;
-                background-color: #0f1118;
             }
 
             button.active {
@@ -94,12 +93,20 @@
             background-color: #131620;
         }
 
-        /* Палитра цветов рисования, линий и зон */
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         #color-picker {
             display: flex;
             gap: 6px;
             margin-top: 2px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .color-dot {
@@ -109,6 +116,7 @@
             cursor: pointer;
             border: 2px solid transparent;
             transition: 0.2s;
+            box-sizing: border-box;
         }
 
             .color-dot.selected {
@@ -116,20 +124,16 @@
                 transform: scale(1.15);
             }
 
-            .color-dot.disabled {
-                opacity: 0.15;
-                cursor: not-allowed;
-                transform: none !important;
-            }
-
-        /* Верхняя панель для внешней ссылки на базу гайдов */
-        #top-right-menu {
+        /* ИСПРАВЛЕНО: Компактная кнопка базы гайдов в правом углу */
+        #top-bar {
             position: absolute;
             top: 15px;
-            right: 305px;
+            right: 295px;
             z-index: 30;
             display: flex;
-            gap: 8px;
+            align-items: center;
+            background-color: transparent;
+            box-sizing: border-box;
         }
 
         .btn-guide-link {
@@ -154,13 +158,62 @@
                 background-color: #ffb703;
                 color: #11141d;
             }
+        /* СОСТАВ БОЙЦОВ */
+        .squad-players-inputs {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            background: #0f1118;
+            padding: 6px;
+            border-radius: 6px;
+            margin-top: 4px;
+            border: 1px solid rgba(255,255,255,0.02);
+            box-sizing: border-box;
+        }
 
-        /* Интерактивный список отрядов справа */
+            .squad-players-inputs.open {
+                display: grid;
+            }
+
+        .player-input-row {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .player-input-row input {
+                width: 100%;
+                background: #171b26;
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 4px;
+                color: #fff;
+                font-size: 10px;
+                padding: 4px;
+                outline: none;
+                box-sizing: border-box;
+            }
+
+            .player-input-row button {
+                width: auto;
+                padding: 4px 6px;
+                font-size: 10px;
+                background: #272f42;
+            }
+
         .squad-list-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             margin-top: 5px;
+            width: 100%;
+        }
+
+        .squad-card-block {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
 
         .squad-card-item {
@@ -173,6 +226,8 @@
             align-items: center;
             gap: 10px;
             transition: all 0.2s ease;
+            box-sizing: border-box;
+            width: 100%;
         }
 
             .squad-card-item:hover {
@@ -205,7 +260,6 @@
             margin-top: 2px;
         }
 
-        /* Зона карты */
         #map-container {
             flex-grow: 1;
             background-color: #07080c;
@@ -234,23 +288,37 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Холсты для графики */
-        #paint-canvas {
+        /* ИСПРАВЛЕНО: Два раздельных холста на разных слоях Z-Index */
+        #paint-canvas, #geom-canvas {
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
         }
 
-            #paint-canvas.paintable {
+        #geom-canvas {
+            z-index: 5;
+        }
+
+        #paint-canvas {
+            z-index: 4;
+        }
+
+        .canvas-active {
+            pointer-events: auto !important;
+        }
+
+            .canvas-active.paintable {
                 cursor: crosshair;
             }
 
-        /* Фишки боевых отрядов (Крупные — 14px со свечением и именами) */
+        /* ФИШКИ 8PX */
         .token {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             z-index: 50;
             box-sizing: border-box;
             cursor: move;
@@ -271,8 +339,8 @@
             }
 
         .token-dot-visual {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             box-sizing: border-box;
             z-index: 2;
@@ -280,24 +348,20 @@
 
         .token span {
             position: absolute;
-            left: 10px; /* Немного прижали текст к фишке, так как она стала меньше */
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 4px; /* Уменьшили с 8px до 6.5px — теперь он миниатюрный и не мешает */
+            font-size: 4px;
             font-weight: bold;
             color: #ffffff;
             text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000;
             white-space: nowrap;
             pointer-events: none;
             z-index: 3;
-            letter-spacing: 0.3px; /* Слегка сузили расстояние между буквами */
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
-
-
-
-        /* Фишки малых объектов (Без имен, в 2 раза меньше — 7px, квадратные) */
         .token.obj-token {
             width: 7px;
             height: 7px;
@@ -313,7 +377,6 @@
                 display: none !important;
             }
 
-        /* Свечение отрядов */
         .shytrma .token-dot-visual {
             background: #ef4444;
             border: 1.5px solid #fff;
@@ -350,11 +413,10 @@
             box-shadow: 0 0 8px #9b59b6;
         }
 
-        /* Цвета объектов */
         .obj-barricade .token-dot-visual {
             background: #dc2626;
             border: 1px solid #000;
-            box-shadow: 0 0 4px rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 4px rgba(220, 38, 220, 0.5);
         }
 
         .obj-tent .token-dot-visual {
@@ -372,23 +434,23 @@
 </head>
 <body>
 
-    <!-- Верхняя панель со ссылкой на второй сайт (Базу Гайдов) -->
-    <!-- ПОЗЖЕ ЗАМЕНИ ТЕКСТ В href НА СВОЮ РЕАЛЬНУЮ ССЫЛКУ ПОСЛЕ СОЗДАНИЯ ВТОРОГО САЙТА -->
-    <div id="top-right-menu">
+    <div id="top-bar">
         <a href="base-guide.html" target="_blank" class="btn-guide-link">📖 Открыть базу гайдов →</a>
     </div>
 
-    <!-- ЛЕВАЯ ПАНЕЛЬ: ИКОНКИ ОБЪЕКТОВ И УПРАВЛЕНИЕ РАЗМЕТКОЙ -->
+    <!-- ЛЕВАЯ ПАНЕЛЬ С СЕТКОЙ ИНСТРУМЕНТОВ 2Х3 -->
     <div id="left-sidebar" class="panel">
         <h3>BLACK DELPHINE</h3>
         <hr style="border-color: rgba(255,255,255,0.05); width: 100%; margin: 0;">
 
-        <h4>Режимы управления</h4>
-        <button id="btn-move" class="active">✋ Двигать фишки</button>
-        <button id="btn-pan">🗺️ Тащить карту</button>
-        <button id="btn-line">📐 Инструмент: Линия</button>
-        <button id="btn-zone">🔷 Инструмент: Зона (База)</button>
-        <button id="btn-erase">🧽 Режим ластика</button>
+        <h4>Режимы управления (1-5)</h4>
+        <div class="modes-grid">
+            <button id="btn-move" class="active">✋ Фишки</button>
+            <button id="btn-pan">🗺️ Тянуть</button>
+            <button id="btn-zone">🔷 Зона</button>
+            <button id="btn-erase">🧽 Ластик</button>
+            <button id="btn-draw" style="grid-column: span 2; text-align: center;">✏️ Кисть</button>
+        </div>
 
         <h4>Цвет разметки</h4>
         <div id="color-picker">
@@ -401,35 +463,37 @@
         </div>
 
         <h4>Иконки объектов</h4>
-        <button id="spawn-barricade" onclick="spawnObject('barricade')"><span style="color: #dc2626; margin-right: 5px;">■</span> Поставить Баррикаду</button>
-        <button id="spawn-tent" onclick="spawnObject('tent')"><span style="color: #8b5cf6; margin-right: 5px;">■</span> Поставить Палатку</button>
-        <button id="spawn-ralik" onclick="spawnObject('ralik')"><span style="color: #eab308; margin-right: 5px;">■</span> Поставить Ралик</button>
+        <button id="spawn-barricade" onclick="spawnObject('barricade')"><span style="color: #dc2626; margin-right: 5px;">■</span> Баррикада</button>
+        <button id="spawn-tent" onclick="spawnObject('tent')"><span style="color: #8b5cf6; margin-right: 5px;">■</span> Палатка</button>
+        <button id="spawn-ralik" onclick="spawnObject('ralik')"><span style="color: #eab308; margin-right: 5px;">■</span> Ралик</button>
 
-        <button id="btn-reset" style="margin-top: auto; background-color: rgba(255,255,255,0.02); text-align: center;">🔄 Сбросить фишки</button>
-        <button id="btn-clear" style="background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); text-align: center; color: #fca5a5;">🗑️ Очистить разметку</button>
-    </div>
-
-    <!-- ЦЕНТРАЛЬНЫЙ ХОЛСТ С КАРТОЙ -->
-    <div id="map-container">
-        <div id="zoom-wrapper">
-            <div id="map-bg">
-                <canvas id="paint-canvas" width="618" height="447"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- ПРАВАЯ ПАНЕЛЬ: ТАКТИКИ И МЕНЮ ИНТЕРАКТИВНЫХ ОТРЯДОВ -->
-    <div id="right-sidebar" class="panel">
-        <h3>Управление боем</h3>
-        <hr style="border-color: rgba(255,255,255,0.05); width: 100%; margin: 0;">
-
-        <h4>Сцены тактик (Просмотр)</h4>
-        <div id="tactics-presets-list" style="display: flex; flex-direction: column; gap: 5px;">
+        <h4>Сцены тактик</h4>
+        <div id="tactics-presets-list" style="display: flex; flex-direction: column; gap: 4px;">
             <button class="btn-preset" data-preset-img="nizina_default.png" data-map-type="nizina" onclick="selectPresetTactics(this)">📋 Низина (дефолт)</button>
             <button class="btn-preset" data-preset-img="hvoynik_default.png" data-map-type="hvoynik" onclick="selectPresetTactics(this)">📋 Хвойник (дефолт)</button>
             <button class="btn-preset" data-preset-img="berda_center_default.png" data-map-type="berda_center" onclick="selectPresetTactics(this)">📋 Берда (центр)</button>
             <button class="btn-preset" data-preset-img="berda_side_default.png" data-map-type="berda_side" onclick="selectPresetTactics(this)">📋 Берда (сбоку)</button>
         </div>
+
+        <button id="btn-reset" style="margin-top: auto; background-color: rgba(255,255,255,0.02); text-align: center;">🔄 Сбросить фишки</button>
+        <button id="btn-clear" style="background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); text-align: center; color: #fca5a5;">🗑️ Очистить разметку</button>
+    </div>
+
+    <!-- ЦЕНТРАЛЬНЫЙ ХОЛСТ С ДВУМЯ СЛОЯМИ CANVAS -->
+    <div id="map-container">
+        <div id="zoom-wrapper">
+            <div id="map-bg">
+                <!-- Рисунки кисти -->
+                <canvas id="paint-canvas" width="618" height="447"></canvas>
+                <!-- Неоновые базы и каркас забора КВ -->
+                <canvas id="geom-canvas" width="618" height="447"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- ПРАВАЯ ПАНЕЛЬ: ВЫБОР ЧИСТЫХ КАРТ И МЕНЮ ОТРЯДОВ -->
+    <div id="right-sidebar" class="panel">
+        <h3>Управление боем</h3>
+        <hr style="border-color: rgba(255, 255, 255, 0.05); width: 100%; margin: 0;">
 
         <h4>Выбор карты (Редактор)</h4>
         <div style="display: flex; flex-direction: column; gap: 5px;">
@@ -439,499 +503,298 @@
             <button class="btn-map" data-img="berda_side.png" data-map-type="berda_side">🗺️ 4) Берда (сбоку)</button>
         </div>
 
-        <!-- МЕНЮ ОТРЯДОВ -->
-        <h4 id="squads-header-title">Отряды (Клик для спавна)</h4>
-        <div class="squad-list-container" id="squads-sidebar-container">
-            <div class="squad-card-item" onclick="spawnSquadToken('shytrma', 'ШТУРМА')">
-                <div class="squad-card-badge" style="background: #ef4444; box-shadow: 0 0 6px #ef4444;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Штурма (1-й отряд)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-            <div class="squad-card-item" onclick="spawnSquadToken('gazeli', 'ГАЗЕЛИ')">
-                <div class="squad-card-badge" style="background: #3b82f6; box-shadow: 0 0 6px #3b82f6;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Газели (2-й отряд)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-            <div class="squad-card-item" onclick="spawnSquadToken('polyraki', 'ПОЛУРАКИ')">
-                <div class="squad-card-badge" style="background: #10b981; box-shadow: 0 0 6px #10b981;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Полураки (3-й отряд)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-            <div class="squad-card-item" onclick="spawnSquadToken('ralik-t', 'РАЛИК')">
-                <div class="squad-card-badge" style="background: #f59e0b; box-shadow: 0 0 6px #f59e0b;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Ралик (Спец-отряд)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-            <div class="squad-card-item" onclick="spawnSquadToken('podderzhka', 'ПОДДЕРЖКА')">
-                <div class="squad-card-badge" style="background: #06b6d4; box-shadow: 0 0 6px #06b6d4;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Поддержка (Хом Локи)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-            <div class="squad-card-item" onclick="spawnSquadToken('zamena', 'МИГРАНТЫ')">
-                <div class="squad-card-badge" style="background: #9b59b6; box-shadow: 0 0 6px #9b59b6;"></div>
-                <div class="squad-card-info">
-                    <div class="squad-card-title">Мигранты (Резерв)</div>
-                    <div class="squad-card-sub">Кликните, чтобы призвать метку</div>
-                </div>
-            </div>
-        </div>
+        <h4>Отряды и бойцы</h4>
+        <div class="squad-list-container" id="squads-sidebar-container"></div>
     </div>
+
     <script>
-        const canvas = document.getElementById('paint-canvas');
-        const ctx = canvas.getContext('2d');
-        const mapBg = document.getElementById('map-bg');
-        const mapContainer = document.getElementById('map-container');
-        const zoomWrapper = document.getElementById('zoom-wrapper');
-        const btnMove = document.getElementById('btn-move');
-        const btnPan = document.getElementById('btn-pan');
-        const btnLine = document.getElementById('btn-line');
-        const btnZone = document.getElementById('btn-zone');
-        const btnErase = document.getElementById('btn-erase');
-        const btnClear = document.getElementById('btn-clear');
-        const btnReset = document.getElementById('btn-reset');
-        const mapButtons = document.querySelectorAll('.btn-map');
-        const colorDots = document.querySelectorAll('.color-dot');
+        const canvas = document.getElementById('paint-canvas'); const ctx = canvas.getContext('2d');
+        // НАСТРОЕНО: Контекст второго изолированного холста для неоновых баз КВ
+        const gCanvas = document.getElementById('geom-canvas'); const gCtx = gCanvas.getContext('2d');
+
+        const mapBg = document.getElementById('map-bg'); const mapContainer = document.getElementById('map-container');
+        const zoomWrapper = document.getElementById('zoom-wrapper'); const btnMove = document.getElementById('btn-move');
+        const btnPan = document.getElementById('btn-pan'); const btnZone = document.getElementById('btn-zone');
+        const btnErase = document.getElementById('btn-erase'); const btnDraw = document.getElementById('btn-draw');
+        const btnClear = document.getElementById('btn-clear'); const btnReset = document.getElementById('btn-reset');
+        const mapButtons = document.querySelectorAll('.btn-map'); const colorDots = document.querySelectorAll('.color-dot');
         const presetButtons = document.querySelectorAll('.btn-preset');
 
-        let currentMode = 'move';
-        let currentDrawColor = '#00d2ff';
-        let currentMap = 'nizina.png';
-        let currentMapType = 'nizina';
-        let isPresetMode = false;
-
-        let scale = 1; let panX = 0; let panY = 0;
-        let isPanning = false; let startPanX = 0; let startPanY = 0;
-
-        let activeLinePoints = null;
-        let activeZonePoints = [];
-
-        let sceneStates = {};
+        let currentMode = 'move'; let isDrawing = false; let currentDrawColor = '#00d2ff';
+        let currentMap = 'nizina.png'; let currentMapType = 'nizina'; let isPresetMode = false;
+        let scale = 1; let panX = 0; let panY = 0; let isPanning = false; let startPanX = 0; let startPanY = 0;
+        let activeZonePoints = []; let sceneStates = {}; let historyStack = []; const maxHistoryDepth = 30;
 
         mapBg.style.backgroundImage = `url('${currentMap}')`;
 
-        function saveCurrentSceneState() {
+        // Умный снимок истории для поддержки отката разметки двух холстов через Ctrl + Z
+        function pushToHistory() {
             if (isPresetMode) return;
-
-            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
-            if (!currentImg) return;
-
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1'); if (!currentImg) return;
             const tokens = [];
             document.querySelectorAll('.token').forEach(el => {
-                tokens.push({
-                    type: el.dataset.type,
-                    cls: el.dataset.cls,
-                    label: el.dataset.label,
-                    x: parseInt(el.style.left) || 0,
-                    y: parseInt(el.style.top) || 0
-                });
+                tokens.push({ type: el.dataset.type, cls: el.dataset.cls, label: el.dataset.label, x: parseInt(el.style.left) || 0, y: parseInt(el.style.top) || 0 });
             });
-
-            const existingGeom = sceneStates[currentImg] || { lines: [], zones: [] };
-
-            sceneStates[currentImg] = {
+            const currentGeom = sceneStates[currentImg] || { zones: [] };
+            historyStack.push({
+                map: currentImg,
+                canvasData: canvas.toDataURL(),
                 tokens: tokens,
-                lines: existingGeom.lines || [],
-                zones: existingGeom.zones || []
-            };
+                zones: JSON.parse(JSON.stringify(currentGeom.zones || []))
+            });
+            if (historyStack.length > maxHistoryDepth) historyStack.shift();
+        }
+
+        const squadConfig = [
+            { id: 'shytrma', title: 'Штурма (основной)', color: '#ef4444', label: 'ШТУРМА' },
+            { id: 'gazeli', title: 'Газели (2-й отряд)', color: '#3b82f6', label: 'ГАЗЕЛИ' },
+            { id: 'polyraki', title: 'Полураки (3-й отряд)', color: '#10b981', label: 'ПОЛУРАКИ' },
+            { id: 'ralik-t', title: 'Ралик (Спец-отряд)', color: '#f59e0b', label: 'РАЛИК' },
+            { id: 'podderzhka', title: 'Поддержка (Хом Локи)', color: '#06b6d4', label: 'ПОДДЕРЖКА' },
+            { id: 'zamena', title: 'Мигрант (Резерв)', color: '#9b59b6', label: 'ЗАМЕНА' }
+        ];
+
+        const container = document.getElementById('squads-sidebar-container');
+        squadConfig.forEach(sq => {
+            const block = document.createElement('div'); block.className = 'squad-card-block'; let rowsHtml = '';
+            for (let num = 1; num <= 5; num++) {
+                const defaultNick = sq.label.toLowerCase().charAt(0).toUpperCase() + sq.label.toLowerCase().slice(1) + ' ' + num;
+                rowsHtml += `<div class="player-input-row"><input type="text" placeholder="Боец ${num}" value="${defaultNick}"><button onclick="spawnPlayerToken('${sq.id}', this)">+</button></div>`;
+            }
+            block.innerHTML = `<div class="squad-card-item" onclick="togglePlayersBlock('players-${sq.id}')"><div class="squad-card-badge" style="background: ${sq.color}; box-shadow: 0 0 6px ${sq.color};"></div><div class="squad-card-info"><div class="squad-card-title">${sq.title}</div><div class="squad-card-sub">Настройка состава (5 чел)</div></div></div><div id="players-${sq.id}" class="squad-players-inputs"><button style="background: #1e2433; text-align: center; grid-column: span 2; padding: 4px; font-size: 10px;" onclick="spawnSquadToken('${sq.id}', '${sq.label}')">🌟 Метка отряда</button>${rowsHtml}</div>`; container.appendChild(block);
+        });
+        window.togglePlayersBlock = function (id) { const el = document.getElementById(id); if (el) el.classList.toggle('open'); };
+        function saveCurrentSceneState() {
+            if (isPresetMode) return;
+            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1'); if (!currentImg) return;
+            const tokens = [];
+            document.querySelectorAll('.token').forEach(el => {
+                tokens.push({ type: el.dataset.type, cls: el.dataset.cls, label: el.dataset.label, x: parseInt(el.style.left) || 0, y: parseInt(el.style.top) || 0 });
+            });
+            const existingGeom = sceneStates[currentImg] || { zones: [] };
+            sceneStates[currentImg] = { canvasData: canvas.toDataURL(), tokens: tokens, zones: existingGeom.zones || [] };
         }
 
         function loadSceneState(targetImg) {
-            document.querySelectorAll('.token').forEach(el => el.remove());
-            activeLinePoints = null;
-            activeZonePoints = [];
-
-            if (isPresetMode) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                setMode('pan');
-                return;
-            }
+            document.querySelectorAll('.token').forEach(el => el.remove()); activeZonePoints = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+            if (isPresetMode) { setMode('pan'); return; }
 
             const state = sceneStates[targetImg];
-            if (state && state.tokens) {
-                state.tokens.forEach(t => { createTokenDOM(t); });
+            if (state) {
+                if (state.canvasData) {
+                    const img = new Image(); img.src = state.canvasData;
+                    img.onload = () => { ctx.drawImage(img, 0, 0); };
+                }
+                if (state.tokens) state.tokens.forEach(t => { createTokenDOM(t); });
             }
             redrawGeometry();
         }
+
         window.selectPresetTactics = function (element) {
-            saveCurrentSceneState();
-            presetButtons.forEach(btn => btn.classList.remove('active'));
-            mapButtons.forEach(b => b.classList.remove('active'));
-            element.classList.add('active');
-
-            const presetImg = element.getAttribute('data-preset-img');
-            currentMapType = element.getAttribute('data-map-type');
-            isPresetMode = true;
-
-            // Жесткая блокировка редактора при просмотре готовых тактик
-            document.getElementById('spawn-barricade').disabled = true;
-            document.getElementById('spawn-tent').disabled = true;
-            document.getElementById('spawn-ralik').disabled = true;
-            document.getElementById('btn-line').disabled = true;
-            document.getElementById('btn-zone').disabled = true;
-            document.getElementById('btn-erase').disabled = true;
-            document.getElementById('btn-move').disabled = true;
-            document.querySelectorAll('.color-dot').forEach(d => d.classList.add('disabled'));
-            document.getElementById('squads-sidebar-container').style.opacity = '0.2';
-            document.getElementById('squads-sidebar-container').style.pointerEvents = 'none';
-
-            if (presetImg) {
-                mapBg.style.backgroundImage = `url('${presetImg}')`;
-                loadSceneState(presetImg);
-            }
+            saveCurrentSceneState(); presetButtons.forEach(btn => btn.classList.remove('active')); mapButtons.forEach(b => b.classList.remove('active')); element.classList.add('active');
+            const presetImg = element.getAttribute('data-preset-img'); currentMapType = element.getAttribute('data-map-type'); isPresetMode = true; if (presetImg) { mapBg.style.backgroundImage = `url('${presetImg}')`; loadSceneState(presetImg); }
         };
 
         mapButtons.forEach(btn => {
             btn.addEventListener('click', () => {
-                saveCurrentSceneState();
-                presetButtons.forEach(p => p.classList.remove('active'));
-                mapButtons.forEach(b => b.classList.toggle('active', b === btn));
-
-                currentMap = btn.getAttribute('data-img');
-                currentMapType = btn.getAttribute('data-map-type');
-                isPresetMode = false;
-
-                // Включение редактора для чистой карты
-                document.getElementById('spawn-barricade').disabled = false;
-                document.getElementById('spawn-tent').disabled = false;
-                document.getElementById('spawn-ralik').disabled = false;
-                document.getElementById('btn-line').disabled = false;
-                document.getElementById('btn-zone').disabled = false;
-                document.getElementById('btn-erase').disabled = false;
-                document.getElementById('btn-move').disabled = false;
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('disabled'));
-                document.getElementById('squads-sidebar-container').style.opacity = '1';
-                document.getElementById('squads-sidebar-container').style.pointerEvents = 'auto';
-                setMode('move');
-
-                mapBg.style.backgroundImage = `url('${currentMap}')`;
-                loadSceneState(currentMap);
+                saveCurrentSceneState(); presetButtons.forEach(p => p.classList.remove('active')); mapButtons.forEach(b => b.classList.toggle('active', b === btn));
+                currentMap = btn.getAttribute('data-img'); currentMapType = btn.getAttribute('data-map-type'); isPresetMode = false; setMode('move'); mapBg.style.backgroundImage = `url('${currentMap}')`; loadSceneState(currentMap);
             });
         });
 
+        // ИСПРАВЛЕНО: Очищает и перерисовывает ТОЛЬКО СВОЙ изолированный верхний холст баз
         function redrawGeometry() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
             const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
             if (!currentImg || !sceneStates[currentImg]) return;
-
             const state = sceneStates[currentImg];
-
             if (state.zones) {
                 state.zones.forEach(zone => {
                     if (zone.points.length < 2) return;
-                    ctx.beginPath();
-                    ctx.moveTo(zone.points[0].x, zone.points[0].y);
-                    for (let i = 1; i < zone.points.length; i++) {
-                        ctx.lineTo(zone.points[i].x, zone.points[i].y);
-                    }
-                    ctx.closePath();
-                    ctx.fillStyle = zone.color + '2e';
-                    ctx.fill();
-                    ctx.strokeStyle = zone.color;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                });
-            }
-
-            if (state.lines) {
-                state.lines.forEach(line => {
-                    ctx.beginPath();
-                    ctx.moveTo(line.start.x, line.start.y);
-                    ctx.lineTo(line.end.x, line.end.y);
-                    ctx.strokeStyle = line.color;
-                    ctx.lineWidth = 2.5;
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(line.start.x, line.start.y, 2.5, 0, Math.PI * 2);
-                    ctx.arc(line.end.x, line.end.y, 2.5, 0, Math.PI * 2);
-                    ctx.fill();
+                    gCtx.beginPath(); gCtx.moveTo(zone.points[0].x, zone.points[0].y);
+                    for (let i = 1; i < zone.points.length; i++) gCtx.lineTo(zone.points[i].x, zone.points[i].y);
+                    gCtx.closePath(); gCtx.fillStyle = zone.color + '2e'; gCtx.fill(); gCtx.strokeStyle = zone.color; gCtx.lineWidth = 2; gCtx.stroke();
                 });
             }
         }
-        colorDots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                if (isPresetMode) return;
-                colorDots.forEach(d => d.classList.remove('selected'));
-                dot.classList.add('selected');
-                currentDrawColor = dot.getAttribute('data-color');
-            });
-        });
 
+        colorDots.forEach(dot => { dot.addEventListener('click', () => { if (isPresetMode) return; colorDots.forEach(d => d.classList.remove('selected')); dot.classList.add('selected'); currentDrawColor = dot.getAttribute('data-color'); }); });
+
+        // ИСПРАВЛЕНО: Управляет интерактивностью и классами двух раздельных слоев Canvas
         function setMode(mode) {
-            if (isPresetMode) {
-                currentMode = 'pan';
-                btnMove.classList.remove('active');
-                btnPan.classList.add('active');
-                btnLine.classList.remove('active');
-                btnZone.classList.remove('active');
-                btnErase.classList.remove('active');
-                canvas.style.pointerEvents = 'none';
-                return;
-            }
-
-            currentMode = mode;
-            btnMove.classList.toggle('active', mode === 'move');
-            btnPan.classList.toggle('active', mode === 'pan');
-            btnLine.classList.toggle('active', mode === 'line');
-            btnZone.classList.toggle('active', mode === 'zone');
-            btnErase.classList.toggle('active', mode === 'erase');
-
-            canvas.style.pointerEvents =
-                (mode !== 'move' && mode !== 'pan') ? 'auto' : 'none';
-
-            document.querySelectorAll('.token').forEach(token => {
-                token.style.pointerEvents = (mode === 'move') ? 'auto' : 'none';
-            });
-
-            activeLinePoints = null;
             activeZonePoints = [];
+            if (isPresetMode) {
+                currentMode = 'pan'; btnMove.classList.remove('active'); btnPan.classList.add('active'); btnZone.classList.remove('active'); btnErase.classList.remove('active'); if (btnDraw) btnDraw.classList.remove('active');
+                canvas.className = ''; gCanvas.className = ''; return;
+            }
+            currentMode = mode; btnMove.classList.toggle('active', mode === 'move'); btnPan.classList.toggle('active', mode === 'pan'); btnZone.classList.toggle('active', mode === 'zone'); btnErase.classList.toggle('active', mode === 'erase'); if (btnDraw) btnDraw.classList.toggle('active', mode === 'draw');
+
+            // Распределяем pointer-events по слоям
+            canvas.className = (mode === 'draw' || mode === 'erase') ? 'canvas-active paintable' : '';
+            gCanvas.className = (mode === 'zone') ? 'canvas-active' : '';
+
+            document.querySelectorAll('.token').forEach(token => { token.style.pointerEvents = (mode === 'move') ? 'auto' : 'none'; });
             redrawGeometry();
         }
 
-        btnMove.addEventListener('click', () => setMode('move'));
-        btnPan.addEventListener('click', () => setMode('pan'));
-        btnLine.addEventListener('click', () => setMode('line'));
-        btnZone.addEventListener('click', () => setMode('zone'));
-        btnErase.addEventListener('click', () => setMode('erase'));
+        if (btnDraw) btnDraw.addEventListener('click', () => setMode('draw'));
+        btnMove.addEventListener('click', () => setMode('move')); btnPan.addEventListener('click', () => setMode('pan')); btnZone.addEventListener('click', () => setMode('zone')); btnErase.addEventListener('click', () => setMode('erase'));
 
         btnClear.addEventListener('click', () => {
-            if (isPresetMode) return;
+            if (isPresetMode) return; pushToHistory();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
             const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
-            if (currentImg && sceneStates[currentImg]) {
-                sceneStates[currentImg].lines = [];
-                sceneStates[currentImg].zones = [];
-            }
-            activeLinePoints = null;
-            activeZonePoints = [];
-            redrawGeometry();
-            saveCurrentSceneState();
+            if (currentImg && sceneStates[currentImg]) { sceneStates[currentImg].zones = []; sceneStates[currentImg].canvasData = null; }
+            activeZonePoints = []; redrawGeometry(); saveCurrentSceneState();
         });
 
-        btnReset.addEventListener('click', () => {
-            if (isPresetMode) return;
-            document.querySelectorAll('.token').forEach(el => el.remove());
-            scale = 1; panX = 0; panY = 0;
-            updateTransform();
-            saveCurrentSceneState();
-        });
+        btnReset.addEventListener('click', () => { if (isPresetMode) return; pushToHistory(); document.querySelectorAll('.token').forEach(el => el.remove()); scale = 1; panX = 0; panY = 0; updateTransform(); saveCurrentSceneState(); });
+        function updateTransform() { zoomWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`; }
+        mapContainer.addEventListener('wheel', (e) => { e.preventDefault(); if (e.deltaY < 0) scale = Math.min(scale + 0.1, 5); else scale = Math.max(scale - 0.1, 0.5); updateTransform(); });
+        mapContainer.addEventListener('mousedown', (e) => { if (currentMode !== 'pan' && !isPresetMode) return; isPanning = true; startPanX = e.clientX - panX; startPanY = e.clientY - panY; e.preventDefault(); });
+        document.addEventListener('mousemove', (e) => { if (isPanning && (currentMode === 'pan' || isPresetMode)) { panX = e.clientX - startPanX; panY = e.clientY - startPanY; updateTransform(); } });
+        document.addEventListener('mouseup', () => { if (isPanning) isPanning = false; });
 
-        function updateTransform() {
-            zoomWrapper.style.transform =
-                `translate(${panX}px, ${panY}px) scale(${scale})`;
+        // Временный каркас забора КВ рисуется строго на верхнем слое геометрии gCtx
+        function drawCurrentZoneWireframe() {
+            redrawGeometry(); if (activeZonePoints.length === 0) return;
+            gCtx.strokeStyle = currentDrawColor; gCtx.lineWidth = 1.5; gCtx.beginPath(); gCtx.moveTo(activeZonePoints[0].x, activeZonePoints[0].y);
+            for (let i = 1; i < activeZonePoints.length; i++) gCtx.lineTo(activeZonePoints[i].x, activeZonePoints[i].y);
+            gCtx.stroke();
+            activeZonePoints.forEach(pt => { gCtx.fillStyle = '#ffffff'; gCtx.beginPath(); gCtx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2); gCtx.fill(); });
         }
 
-        mapContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (e.deltaY < 0) scale = Math.min(scale + 0.1, 5);
-            else scale = Math.max(scale - 0.1, 0.5);
-            updateTransform();
-        });
-
-        mapContainer.addEventListener('mousedown', (e) => {
-            if (currentMode !== 'pan' && !isPresetMode) return;
-            isPanning = true;
-            startPanX = e.clientX - panX;
-            startPanY = e.clientY - panY;
-            e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isPanning && (currentMode === 'pan' || isPresetMode)) {
-                panX = e.clientX - startPanX;
-                panY = e.clientY - startPanY;
-                updateTransform();
+        function isPointInPolygon(x, y, points) {
+            let inside = false;
+            for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+                const xi = points[i].x, yi = points[i].y; const xj = points[j].x, yj = points[j].y;
+                const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi); if (intersect) inside = !inside;
             }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isPanning) isPanning = false;
-        });
-        canvas.addEventListener('mousedown', (e) => {
+            return inside;
+        }
+        // ИСПРАВЛЕНО: Обработчик клика распределяет ЛКМ/ПКМ по независимым слоям
+        function handleCanvasMouseDown(e) {
             if (isPresetMode) return;
-            const currentImg = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1');
-            if (!currentImg) return;
+            const img = mapBg.style.backgroundImage.replace(/^url\(['"](.+)['"]\)$/, '$1'); if (!img) return;
+            if (!sceneStates[img]) sceneStates[img] = { tokens: [], zones: [] };
 
-            if (!sceneStates[currentImg]) {
-                sceneStates[currentImg] = { tokens: [], lines: [], zones: [] };
-            }
+            // Считаем координаты клика относительно контейнера карты (чтобы работало на обоих слоях одинаково)
+            const rect = mapBg.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / scale;
+            const y = (e.clientY - rect.top) / scale;
 
-            const x = e.offsetX;
-            const y = e.offsetY;
-
-            if (currentMode === 'line') {
-                if (!activeLinePoints) {
-                    activeLinePoints = { x: x, y: y };
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(x, y, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                } else {
-                    sceneStates[currentImg].lines.push({
-                        start: activeLinePoints,
-                        end: { x: x, y: y },
-                        color: currentDrawColor
-                    });
-                    activeLinePoints = null;
-                    redrawGeometry();
-                    saveCurrentSceneState();
+            if (e.button === 0) {
+                if (currentMode === 'draw') {
+                    pushToHistory(); isDrawing = true; ctx.beginPath(); ctx.moveTo(x, y);
+                    ctx.strokeStyle = currentDrawColor; ctx.lineWidth = 4 / scale; ctx.lineCap = 'round'; return;
                 }
-            }
-
-            if (currentMode === 'zone') {
-                if (activeZonePoints.length > 2 &&
-                    Math.hypot(x - activeZonePoints[0].x, y - activeZonePoints[0].y) < 12) {
-
-                    sceneStates[currentImg].zones.push({
-                        points: activeZonePoints,
-                        color: currentDrawColor
-                    });
-                    activeZonePoints = [];
-                    redrawGeometry();
-                    saveCurrentSceneState();
-                } else {
-                    activeZonePoints.push({ x: x, y: y });
-
-                    ctx.strokeStyle = currentDrawColor;
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(activeZonePoints[0].x, activeZonePoints[0].y);
-                    for (let i = 1; i < activeZonePoints.length; i++) {
-                        ctx.lineTo(activeZonePoints[i].x, activeZonePoints[i].y);
+                if (currentMode === 'erase') {
+                    pushToHistory(); isDrawing = true; ctx.beginPath(); ctx.moveTo(x, y);
+                    ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 30 / scale; ctx.lineCap = 'round'; return;
+                }
+                if (currentMode === 'zone') {
+                    if (activeZonePoints.length > 2 && Math.hypot(x - activeZonePoints[0].x, y - activeZonePoints[0].y) < 12) {
+                        pushToHistory(); sceneStates[img].zones.push({ points: activeZonePoints, color: currentDrawColor }); activeZonePoints = [];
+                        redrawGeometry(); saveCurrentSceneState();
+                    } else {
+                        activeZonePoints.push({ x: x, y: y }); drawCurrentZoneWireframe();
                     }
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-                    ctx.fill();
                 }
             }
 
-            if (currentMode === 'erase') {
-                const clickX = x;
-                const clickY = y;
-                const eraseRadius = 15;
-
-                sceneStates[currentImg].lines = sceneStates[currentImg].lines.filter(line => {
-                    const dStart = Math.hypot(line.start.x - clickX, line.start.y - clickY);
-                    const dEnd = Math.hypot(line.end.x - clickX, line.end.y - clickY);
-                    return dStart > eraseRadius && dEnd > eraseRadius;
-                });
-
-                sceneStates[currentImg].zones = sceneStates[currentImg].zones.filter(zone => {
-                    return !zone.points.some(pt => Math.hypot(pt.x - clickX, pt.y - clickY) < eraseRadius);
-                });
-
-                redrawGeometry();
-                saveCurrentSceneState();
+            if (e.button === 2) {
+                e.preventDefault();
+                if (currentMode === 'zone') { activeZonePoints = []; redrawGeometry(); return; }
+                if (currentMode === 'erase' || currentMode === 'move') {
+                    pushToHistory();
+                    sceneStates[img].zones = sceneStates[img].zones.filter(zone => !isPointInPolygon(x, y, zone.points));
+                    redrawGeometry(); saveCurrentSceneState();
+                }
             }
+        }
+
+        function handleCanvasMouseMove(e) {
+            if (!isDrawing) return;
+            const rect = mapBg.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / scale;
+            const y = (e.clientY - rect.top) / scale;
+            if (currentMode === 'draw' || currentMode === 'erase') { ctx.lineTo(x, y); ctx.stroke(); }
+        }
+
+        // Подключаем слушатели на глобальный контейнер фона, чтобы клики прошивали слои насквозь
+        mapBg.addEventListener('mousedown', handleCanvasMouseDown);
+        mapBg.addEventListener('mousemove', handleCanvasMouseMove);
+
+        window.addEventListener('mouseup', () => {
+            if (isDrawing) { isDrawing = false; ctx.globalCompositeOperation = 'source-over'; saveCurrentSceneState(); }
         });
 
-        let activeToken = null;
-        let startX = 0, startY = 0;
-        let tokenLeft = 0, tokenTop = 0;
+        mapBg.addEventListener('contextmenu', e => e.preventDefault());
+        let activeToken = null; let startX = 0, startY = 0; let tokenLeft = 0, tokenTop = 0;
 
         function initDragForToken(token) {
             token.addEventListener('mousedown', (e) => {
-                if (isPresetMode) return;
-                if (currentMode !== 'move' || e.button !== 0) return;
-                activeToken = token;
-                startX = e.clientX;
-                startY = e.clientY;
-                tokenLeft = parseInt(token.style.left) || 0;
-                tokenTop = parseInt(token.style.top) || 0;
-                token.style.zIndex = 1000;
-                e.stopPropagation();
+                if (isPresetMode) return; if (currentMode !== 'move' || e.button !== 0) return;
+                pushToHistory(); activeToken = token; startX = e.clientX; startY = e.clientY;
+                tokenLeft = parseInt(token.style.left) || 0; tokenTop = parseInt(token.style.top) || 0; token.style.zIndex = 1000; e.stopPropagation();
             });
         }
 
         document.addEventListener('mousemove', (e) => {
             if (!activeToken || isPresetMode) return;
-            const dx = (e.clientX - startX) / scale;
-            const dy = (e.clientY - startY) / scale;
-            let newX = tokenLeft + dx;
-            let newY = tokenTop + dy;
-            newX = Math.max(0, Math.min(newX, 618 - activeToken.offsetWidth));
-            newY = Math.max(0, Math.min(newY, 447 - activeToken.offsetHeight));
-            activeToken.style.left = newX + 'px';
-            activeToken.style.top = newY + 'px';
+            const dx = (e.clientX - startX) / scale; const dy = (e.clientY - startY) / scale;
+            let newX = tokenLeft + dx; let newY = tokenTop + dy;
+            newX = Math.max(0, Math.min(newX, 618 - activeToken.offsetWidth)); newY = Math.max(0, Math.min(newY, 447 - activeToken.offsetHeight));
+            activeToken.style.left = newX + 'px'; activeToken.style.top = newY + 'px';
         });
-
-        document.addEventListener('mouseup', () => {
-            if (activeToken) {
-                activeToken.style.zIndex = '50';
-                activeToken = null;
-                saveCurrentSceneState();
-            }
-        });
+        document.addEventListener('mouseup', () => { if (activeToken) { activeToken.style.zIndex = '50'; activeToken = null; saveCurrentSceneState(); } });
 
         function createTokenDOM(t) {
-            const div = document.createElement('div');
-            div.dataset.type = t.type;
-            div.dataset.cls = t.cls;
-            div.dataset.label = t.label;
-
-            if (t.type === 'obj') {
-                div.className = `token obj-token ${t.cls}`;
-            } else {
-                div.className = `token ${t.cls}`;
-            }
-
-            div.innerHTML =
-                `<div class="token-dot-visual"></div><span>${t.label}</span>`;
-
-            if (currentMode !== 'move') {
-                div.style.pointerEvents = 'none';
-            }
-
-            div.oncontextmenu = (e) => {
-                if (isPresetMode) return;
-                e.preventDefault();
-                div.remove();
-                saveCurrentSceneState();
-            };
-            div.style.left = t.x + 'px';
-            div.style.top = t.y + 'px';
-            mapBg.appendChild(div);
-            initDragForToken(div);
+            const div = document.createElement('div'); div.dataset.type = t.type; div.dataset.cls = t.cls; div.dataset.label = t.label;
+            div.className = (t.type === 'obj') ? `token obj-token ${t.cls}` : `token ${t.cls}`;
+            div.innerHTML = `<div class="token-dot-visual"></div><span>${t.label}</span>`;
+            div.style.pointerEvents = (currentMode === 'move') ? 'auto' : 'none';
+            div.oncontextmenu = (e) => { if (isPresetMode) return; e.preventDefault(); pushToHistory(); div.remove(); saveCurrentSceneState(); };
+            div.style.left = t.x + 'px'; div.style.top = t.y + 'px'; mapBg.appendChild(div); initDragForToken(div);
         }
 
         window.spawnSquadToken = function (cls, label) {
             if (isPresetMode) return;
-            if (document.querySelector(`.token.${cls}`)) return;
-
-            const config = { type: 'team', cls: cls, label: label, x: 295, y: 210 };
-            createTokenDOM(config);
-            saveCurrentSceneState();
+            const existingTeamToken = Array.from(document.querySelectorAll(`.token.${cls}`)).find(el => el.dataset.type === 'team');
+            if (existingTeamToken) return;
+            pushToHistory(); createTokenDOM({ type: 'team', cls: cls, label: label, x: 295, y: 210 }); saveCurrentSceneState();
         };
 
+        window.spawnPlayerToken = function (cls, btnElement) { if (isPresetMode) return; const input = btnElement.previousElementSibling; if (!input || !input.value.trim()) return; pushToHistory(); const playerNick = input.value.trim(); createTokenDOM({ type: 'player', cls: cls, label: playerNick, x: 295, y: 210 }); saveCurrentSceneState(); };
         window.spawnObject = function (type) {
-            if (isPresetMode) return;
-            let config = {};
-            if (type === 'barricade') {
-                config = { type: 'obj', cls: 'obj-barricade', label: '', x: 297, y: 211 };
-            }
-            if (type === 'tent') {
-                config = { type: 'obj', cls: 'obj-tent', label: '', x: 297, y: 211 };
-            }
-            if (type === 'ralik') {
-                config = { type: 'obj', cls: 'obj-ralik', label: '', x: 297, y: 211 };
-            }
-            createTokenDOM(config);
-            saveCurrentSceneState();
+            if (isPresetMode) return; pushToHistory(); let config = {};
+            if (type === 'barricade') config = { type: 'obj', cls: 'obj-barricade', label: '', x: 297, y: 211 }; if (type === 'tent') config = { type: 'obj', cls: 'obj-tent', label: '', x: 297, y: 211 }; if (type === 'ralik') config = { type: 'obj', cls: 'obj-ralik', label: '', x: 297, y: 211 };
+            createTokenDOM(config); saveCurrentSceneState();
         };
+
+        function undoLastAction() {
+            if (isPresetMode || historyStack.length === 0) return; const previousState = historyStack.pop();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+            sceneStates[previousState.map] = { zones: previousState.zones || [], canvasData: previousState.canvasData };
+            document.querySelectorAll('.token').forEach(el => el.remove());
+
+            if (previousState.canvasData) {
+                const img = new Image(); img.src = previousState.canvasData;
+                img.onload = () => { ctx.drawImage(img, 0, 0); };
+            }
+            if (previousState.tokens) previousState.tokens.forEach(t => createTokenDOM(t));
+            redrawGeometry();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); undoLastAction(); return; }
+            if (e.key === '1') setMode('move'); if (e.key === '2') setMode('pan'); if (e.key === '3') setMode('zone'); if (e.key === '4') setMode('erase'); if (e.key === '5') setMode('draw');
+        });
 
         loadSceneState(currentMap);
     </script>
